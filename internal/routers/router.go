@@ -11,9 +11,11 @@ import (
 func NewRouter() *gin.Engine {
 	r := gin.New()
 	ping := api.NewPing()
+	user := api.NewUser()
 	apiGroup := r.Group("/api/")
 	{
 		apiGroup.GET("/ping", ping.Ping)
+		apiGroup.POST("/user/login", user.Login)
 	}
 	return r
 }
