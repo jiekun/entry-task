@@ -6,10 +6,23 @@
 ```
 ├── LICENSE
 ├── README.md
-└── go.mod
+├── cmd
+│   ├── grpc-server
+│   └── http-server
+│       └── main.go
+├── configs
+├── go.mod
+├── go.sum
+└── internal
+    └── routers
+        ├── api
+        │   └── ping.go
+        └── router.go
 ```
 
 ## Setup
 ```
 go mod tidy
+
+go run cmd/http-server/main.go
 ```
