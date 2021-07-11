@@ -1,1 +1,0 @@
-2021/07/11 16:42:42 {"callers":["/Users/jiekunzhu/github.com/entry-task/cmd/http-server/main.go: 74 main.init.0"],"level":"error","message":"app.UserLogin errs: record not found","time":1625992962329940000}
