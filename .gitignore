@@ -17,3 +17,6 @@
 # Jetbrain Stuffs
 .DS_Store
 .idea
+
+# Log output
+log/.log
