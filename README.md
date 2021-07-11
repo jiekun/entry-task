@@ -7,17 +7,29 @@
 ├── LICENSE
 ├── README.md
 ├── cmd
-│   ├── grpc-server
-│   └── http-server
-│       └── main.go
+│   ├── grpc-server
+│   └── http-server
+│       └── main.go           // Entry point
 ├── configs
+│   └── config.yaml           // Config file
+├── global
 ├── go.mod
 ├── go.sum
-└── internal
-    └── routers
-        ├── api
-        │   └── ping.go
-        └── router.go
+├── internal
+│   ├── constant
+│   ├── dao
+│   ├── error                 // Error handling and definition
+│   ├── models
+│   ├── routers
+│   │   ├── api               // URL router
+│   │   └── router.go
+│   └── service
+├── log
+├── pkg
+│   ├── logger
+│   ├── resp
+│   └── setting
+└── scripts                   // All init scripts and sql files
 ```
 
 ## Setup
