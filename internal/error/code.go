@@ -9,5 +9,6 @@ var (
 	InvalidParams = NewError(10000001, "Invalid Params")
 	NotFound      = NewError(10000002, "Not Found")
 
-	ErrorUserLogin = NewError(20010001, "User Login Failed")
+	ErrorUserLogin    = NewError(20010001, "User Login Failed")
+	ErrorUserNotLogin = NewError(20010002, "User Login Required")
 )

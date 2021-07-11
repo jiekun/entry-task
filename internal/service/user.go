@@ -4,6 +4,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/satori/go.uuid"
 )
 
@@ -12,7 +13,9 @@ type UserLoginRequest struct {
 	Password string `form:"password" validate:"required,min=2,max=255"`
 }
 
-type UserLoginResponse struct{}
+type UserLoginResponse struct {
+	SessionID string
+}
 
 func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, error) {
 	// Validation
@@ -28,5 +31,14 @@ func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	return &UserLoginResponse{}, nil
+	return &UserLoginResponse{SessionID: sessionID.String()}, nil
+}
+
+func (svc *Service) UserAuth(sessionID string) error {
+	username, err := svc.cache.Cache.Get(sessionID)
+
+	if err != nil || username == nil {
+		return errors.New("svc.UserAuth failed.")
+	}
+	return nil
 }

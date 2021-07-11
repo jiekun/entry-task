@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/pkg/setting"
+	"github.com/allegro/bigcache/v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -55,4 +56,12 @@ func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(databaseSetting.MaxOpenConns)
 
 	return db, nil
+}
+
+func NewCacheClient() (*bigcache.BigCache, error) {
+	cache, err := bigcache.NewBigCache(bigcache.DefaultConfig(30 * time.Minute))
+	if err != nil {
+		return nil, err
+	}
+	return cache, nil
 }

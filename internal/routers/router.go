@@ -5,6 +5,7 @@ package routers
 
 import (
 	"github.com/2014bduck/entry-task/internal/routers/api"
+	"github.com/2014bduck/entry-task/pkg/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,8 +15,13 @@ func NewRouter() *gin.Engine {
 	user := api.NewUser()
 	apiGroup := r.Group("/api/")
 	{
-		apiGroup.GET("/ping", ping.Ping)
 		apiGroup.POST("/user/login", user.Login)
+	}
+
+	authGroup := r.Group("/api/")
+	authGroup.Use(middleware.SessionRequired)
+	{
+		authGroup.GET("/ping", ping.Ping)
 	}
 	return r
 }

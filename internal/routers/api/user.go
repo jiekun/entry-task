@@ -30,8 +30,9 @@ func (u User) Login(c *gin.Context) {
 		global.Logger.Errorf("app.UserLogin errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserLogin)
 		return
-
 	}
+	c.SetCookie("session_id", loginResponse.SessionID, 3600, "/", "", false, true)
 	response.ToResponse("Login Succeed.", loginResponse)
 	return
 }
+

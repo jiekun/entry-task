@@ -71,6 +71,11 @@ func init() {
 		log.Fatalf("init.setupDBEngine err: %v", err)
 	}
 
+	err = setupCacheClient()
+	if err != nil {
+		log.Fatalf("init.setupCacheClient err: %v", err)
+	}
+
 	err = setupLogger()
 	if err != nil {
 		log.Fatalf("init.setupLogger err: %v", err)
@@ -120,6 +125,15 @@ func setupSetting() error {
 func setupDBEngine() error {
 	var err error
 	global.DBEngine, err = models.NewDBEngine(global.DatabaseSetting)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func setupCacheClient() error {
+	var err error
+	global.CacheClient, err = models.NewCacheClient()
 	if err != nil {
 		return err
 	}

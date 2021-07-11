@@ -32,3 +32,12 @@ func (r *Response) ToErrorResponse(err *errcode.Error) {
 	}
 	r.Ctx.JSON(err.StatusCode(), response)
 }
+
+func (r *Response) ToAbortErrorResponse(err *errcode.Error) {
+	response := gin.H{"retcode": err.GetCode(), "msg": err.GetMsg()}
+	details := err.GetDetails()
+	if len(details) > 0 {
+		response["details"] = details
+	}
+	r.Ctx.AbortWithStatusJSON(err.StatusCode(), response)
+}

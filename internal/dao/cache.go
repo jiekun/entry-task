@@ -5,14 +5,13 @@ package dao
 
 import (
 	"github.com/allegro/bigcache/v3"
-	"time"
 )
 
 type InProcessCache struct {
 	Cache *bigcache.BigCache
 }
 
-func NewCache() *InProcessCache {
-	cache, _ := bigcache.NewBigCache(bigcache.DefaultConfig(30 * time.Minute))
-	return &InProcessCache{Cache: cache}
+
+func NewCache(cacheClient *bigcache.BigCache) *InProcessCache {
+	return &InProcessCache{Cache: cacheClient}
 }
