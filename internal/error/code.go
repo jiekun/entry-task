@@ -1,0 +1,13 @@
+// @Author: 2014BDuck
+// @Date: 2021/7/11
+
+package errcode
+
+var (
+	Success       = NewError(0, "Success")
+	ServerError   = NewError(10000000, "Server Error")
+	InvalidParams = NewError(10000001, "Invalid Params")
+	NotFound      = NewError(10000002, "Not Found")
+
+	ErrorUserLogin = NewError(20010001, "User Login Failed")
+)

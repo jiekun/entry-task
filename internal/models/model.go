@@ -3,8 +3,56 @@
 
 package models
 
+import (
+	"fmt"
+	"github.com/2014bduck/entry-task/global"
+	"github.com/2014bduck/entry-task/pkg/setting"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"log"
+	"os"
+	"time"
+)
+
 type CommonModel struct {
 	ID    uint32 `gorm:"primary_key" json:"id,omitempty"`
 	Ctime uint32 `json:"ctime,omitempty"`
 	Mtime uint32 `json:"mtime,omitempty"`
+}
+
+func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
+	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
+		databaseSetting.UserName,
+		databaseSetting.Password,
+		databaseSetting.Host,
+		databaseSetting.DBName,
+		databaseSetting.Charset,
+		databaseSetting.ParseTime,
+	)))
+	if err != nil {
+		return nil, err
+	}
+
+	if global.ServerSetting.RunMode == "debug" {
+		newLogger := logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+			logger.Config{
+				SlowThreshold:             time.Second, // Slow SQL threshold
+				LogLevel:                  logger.Info, // Log level
+				IgnoreRecordNotFoundError: false,       // Ignore ErrRecordNotFound error for logger
+				Colorful:                  false,       // Disable color
+			},
+		)
+		db.Logger = newLogger
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	sqlDB.SetMaxIdleConns(databaseSetting.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(databaseSetting.MaxOpenConns)
+
+	return db, nil
 }
