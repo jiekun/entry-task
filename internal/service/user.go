@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/2014bduck/entry-task/internal/constant"
+	"github.com/2014bduck/entry-task/pkg/hashing"
 	"github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -37,7 +38,8 @@ func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, erro
 	}
 
 	// Invalid cases
-	if user.Password != param.Password {
+	hashedPass := hashing.HashPassword(param.Password)
+	if user.Password != hashedPass {
 		return nil, fmt.Errorf("svc.UserLogin: pwd incorrect")
 	} else if user.Status != uint8(constant.EnabledStatus) {
 		return nil, fmt.Errorf("svc.UserLogin: status disabled")
@@ -61,8 +63,11 @@ func (svc *Service) UserRegister(param *UserRegisterRequest) (*UserRegisterRespo
 		return nil, fmt.Errorf("svc.UserRegister: username existed")
 	}
 
+	// Add Salt to pass
+	hashedPass := hashing.HashPassword(param.Password)
+
 	// Create User to DB
-	_, err = svc.dao.CreateUser(param.Username, param.Password, param.Nickname, param.ProfilePic, uint8(constant.EnabledStatus))
+	_, err = svc.dao.CreateUser(param.Username, hashedPass, param.Nickname, param.ProfilePic, uint8(constant.EnabledStatus))
 	if err != nil {
 		return nil, fmt.Errorf("svc.UserRegister: CreateUser error: %v", err)
 	}
