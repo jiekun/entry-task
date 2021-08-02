@@ -17,6 +17,7 @@ App:
     - .jpeg
     - .png
   DefaultContextTimeout: 60
+  HashSalt: EntryTask2021
 Database:
   DBType: mysql
   Username: root
