@@ -26,12 +26,28 @@ func (d *Dao) CreateUser(username, password, nickname, profilePic string, status
 		Password:   password,
 		Nickname:   nickname,
 		ProfilePic: profilePic,
-		Status: status,
+		Status:     status,
 		CommonModel: &models.CommonModel{
 			Ctime: uint32(time.Now().Unix()),
 			Mtime: uint32(time.Now().Unix()),
 		},
 	}
 	return userTab.Create(d.engine)
+
+}
+
+func (d *Dao) UpdateUser(id uint32, nickname, profilePic string) error {
+	user := models.UserTab{CommonModel: &models.CommonModel{ID: id}}
+	values := map[string]interface{}{
+		"mtime": uint32(time.Now().Unix()),
+	}
+	if profilePic != ""{
+		values["profile_pic"] = profilePic
+	}
+	if nickname != ""{
+		values["nickname"] = nickname
+	}
+
+	return user.Update(d.engine, values)
 
 }

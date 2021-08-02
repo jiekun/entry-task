@@ -4,6 +4,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	errcode "github.com/2014bduck/entry-task/internal/error"
 	"github.com/2014bduck/entry-task/internal/service"
@@ -55,5 +56,30 @@ func (u User) Register(c *gin.Context) {
 		return
 	}
 	response.ToResponse("Register Succeed.", loginResponse)
+	return
+}
+
+func (u User) Edit(c *gin.Context) {
+	response := resp.NewResponse(c)
+	param := service.UserEditRequest{}
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("app.Edit errs: %v", err)
+		response.ToErrorResponse(errcode.InvalidParams)
+		return
+	}
+
+	// Get username set by Auth middleware
+	username, _ := c.Get("username")
+	param.Username = fmt.Sprintf("%v", username)
+
+	svc := service.New(c.Request.Context())
+	editResponse, err := svc.UserEdit(&param)
+	if err != nil {
+		global.Logger.Errorf("app.Edit errs: %v", err)
+		response.ToErrorResponse(errcode.ErrorUserRegister)
+		return
+	}
+	response.ToResponse("Edit Succeed.", editResponse)
 	return
 }

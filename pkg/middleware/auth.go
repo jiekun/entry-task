@@ -14,13 +14,14 @@ func SessionRequired(c *gin.Context) {
 	response := resp.NewResponse(c)
 	sessionID, err := c.Cookie("session_id")
 	svc := service.New(c.Request.Context())
-	err = svc.UserAuth(sessionID)
+	username, err := svc.UserAuth(sessionID)
 	if err != nil {
 		// Abort the request with the appropriate error code
 		response.ToAbortErrorResponse(errcode.ErrorUserNotLogin)
 		return
 	}else{
 		// Continue down the chain to handler etc
+		c.Set("username", username)
 		c.Next()
 	}
 }

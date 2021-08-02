@@ -15,8 +15,8 @@ type UploadFileRequest struct {
 }
 
 type UploadFileResponse struct {
-	FileName string
-	FileUrl  string
+	FileName string `json:"file_name"`
+	FileUrl  string `json:"file_url"`
 }
 
 func (svc *Service) UploadFile(fileType int, file multipart.File, fileHeader *multipart.FileHeader) (*UploadFileResponse, error) {
@@ -40,6 +40,6 @@ func (svc *Service) UploadFile(fileType int, file multipart.File, fileHeader *mu
 	if err := upload.SaveFile(fileHeader, dst); err != nil {
 		return nil, err
 	}
-	accessUrl := global.AppSetting.UploadServerUrl + "/" + fileName
-	return &UploadFileResponse{FileUrl: accessUrl, FileName: fileName}, nil
+	fileUrl := global.AppSetting.UploadServerUrl + "/" + fileName
+	return &UploadFileResponse{FileUrl: fileUrl, FileName: fileName}, nil
 }

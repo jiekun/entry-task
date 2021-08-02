@@ -4,6 +4,7 @@
 package models
 
 import (
+	"github.com/2014bduck/entry-task/internal/constant"
 	"gorm.io/gorm"
 )
 
@@ -36,6 +37,15 @@ func (u UserTab) Create(db *gorm.DB) (*UserTab, error) {
 		return nil, err
 	}
 	return &u, nil
+}
+
+func (u UserTab) Update(db *gorm.DB, values interface{}) error {
+	if err := db.Model(&u).Updates(values).Where(
+		"id = ? AND status = ?", u.ID, constant.EnabledStatus,
+	).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (u UserTab) GetUserByName(db *gorm.DB) (UserTab, error) {

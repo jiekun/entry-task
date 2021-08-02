@@ -24,11 +24,19 @@ type UserRegisterRequest struct {
 	ProfilePic string `form:"profile_pic" binding:"-"` // Skip validation.
 }
 
+type UserEditRequest struct {
+	Username   string `form:"username"`
+	Nickname   string `form:"nickname"`
+	ProfilePic string `form:"profile_pic"`
+}
+
 type UserLoginResponse struct {
-	SessionID string
+	SessionID string `json:"session_id"`
 }
 
 type UserRegisterResponse struct{}
+
+type UserEditResponse struct{}
 
 func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, error) {
 	// Find user
@@ -75,11 +83,31 @@ func (svc *Service) UserRegister(param *UserRegisterRequest) (*UserRegisterRespo
 	return &UserRegisterResponse{}, nil
 }
 
-func (svc *Service) UserAuth(sessionID string) error {
+func (svc *Service) UserEdit(param *UserEditRequest) (*UserEditResponse, error) {
+	// Query current user
+	user, err := svc.dao.GetUserByName(param.Username)
+	if err != nil {
+		return nil, fmt.Errorf("svc.UserEdit: %v", err)
+	}
+
+	// Validate user status
+	if constant.Status(user.Status) != constant.EnabledStatus {
+		return nil, errors.New("svc.UserEdit: Invalid user status")
+	}
+
+	// Update user data
+	err = svc.dao.UpdateUser(user.ID, param.Nickname, param.ProfilePic)
+	if err != nil {
+		return nil, fmt.Errorf("svc.UserEdit: %v", err)
+	}
+	return &UserEditResponse{}, nil
+}
+
+func (svc *Service) UserAuth(sessionID string) (string, error) {
 	username, err := svc.cache.Cache.Get(sessionID)
 
 	if err != nil || username == nil {
-		return errors.New("svc.UserAuth failed")
+		return "", errors.New("svc.UserAuth failed")
 	}
-	return nil
+	return string(username), nil
 }
