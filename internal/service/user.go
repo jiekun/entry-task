@@ -13,15 +13,15 @@ import (
 )
 
 type UserLoginRequest struct {
-	Username string `form:"username" validate:"required,min=2,max=255"`
-	Password string `form:"password" validate:"required,min=2,max=255"`
+	Username string `form:"username" binding:"required,min=2,max=255"`
+	Password string `form:"password" binding:"required,min=2,max=255"`
 }
 
 type UserRegisterRequest struct {
-	Username   string `form:"username" validate:"required,min=2,max=255"`
-	Password   string `form:"password" validate:"required,min=2,max=255"`
-	Nickname   string `form:"nickname" validate:"required,min=2,max=255"`
-	ProfilePic string `form:"profile_pic" validate:"-"` // Skip validation.
+	Username   string `form:"username" binding:"required,min=2,max=255"`
+	Password   string `form:"password" binding:"required,min=2,max=255"`
+	Nickname   string `form:"nickname" binding:"required,min=2,max=255"`
+	ProfilePic string `form:"profile_pic" binding:"-"` // Skip validation.
 }
 
 type UserLoginResponse struct {

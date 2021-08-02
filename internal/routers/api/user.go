@@ -22,6 +22,8 @@ func (u User) Login(c *gin.Context) {
 	param := service.UserLoginRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
+		global.Logger.Errorf("app.Register errs: %v", err)
+		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}
 	svc := service.New(c.Request.Context())
@@ -41,6 +43,8 @@ func (u User) Register(c *gin.Context) {
 	param := service.UserRegisterRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
+		global.Logger.Errorf("app.Register errs: %v", err)
+		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}
 	svc := service.New(c.Request.Context())
