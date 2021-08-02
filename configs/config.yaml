@@ -24,7 +24,7 @@ Database:
   Password: 9596abcd@@@
   Host: localhost:3306
   DBName: entry_task_v2_db
-  Charset: utf8
+  Charset: utf8mb4
   ParseTime: True
   MaxIdleConns: 10
   MaxOpenConns: 30
