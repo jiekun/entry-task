@@ -36,3 +36,20 @@ func (u User) Login(c *gin.Context) {
 	return
 }
 
+func (u User) Redgister(c *gin.Context) {
+	response := resp.NewResponse(c)
+	param := service.UserRegisterRequest{}
+	err := c.ShouldBind(&param)
+	if err != nil {
+		return
+	}
+	svc := service.New(c.Request.Context())
+	loginResponse, err := svc.UserRegister(&param)
+	if err != nil {
+		global.Logger.Errorf("app.Register errs: %v", err)
+		response.ToErrorResponse(errcode.ErrorUserLogin)
+		return
+	}
+	response.ToResponse("Register Succeed.", loginResponse)
+	return
+}

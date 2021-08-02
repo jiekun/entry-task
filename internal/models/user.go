@@ -4,17 +4,16 @@
 package models
 
 import (
-	"github.com/2014bduck/entry-task/internal/constant"
 	"gorm.io/gorm"
 )
 
 type UserTab struct {
 	*CommonModel
-	Name      string `json:"name"`       // 用户名
-	Nickname  string `json:"nickname"`   // 用户昵称
-	AvatarUrl string `json:"avatar_url"` // 用户头像路径
-	Password  string `json:"password"`   // 用户登陆密码（加盐）
-	Status    uint8  `json:"status"`     // 用户状态 0-enabled 1-disabled
+	Name       string `json:"name"`        // 用户名
+	Nickname   string `json:"nickname"`    // 用户昵称
+	ProfilePic string `json:"profile_pic"` // 用户头像路径
+	Password   string `json:"password"`    // 用户登陆密码（加盐）
+	Status     uint8  `json:"status"`      // 用户状态 0-enabled 1-disabled
 }
 
 func (u UserTab) TableName() string {
@@ -32,9 +31,16 @@ func (us UserSessionTab) TableName() string {
 	return "user_session_tab"
 }
 
-func (u UserTab) GetValidUser(db *gorm.DB) (UserTab, error) {
+func (u UserTab) Create(db *gorm.DB) (*UserTab, error) {
+	if err := db.Create(&u).Error; err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (u UserTab) GetUserByName(db *gorm.DB) (UserTab, error) {
 	var userTab UserTab
-	db = db.Where("name = ? AND password = ? AND status = ?", u.Name, u.Password, constant.EnabledStatus)
+	db = db.Where("name = ?", u.Name)
 	err := db.First(&userTab).Error
 	if err != nil {
 		return userTab, err
