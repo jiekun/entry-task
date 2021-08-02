@@ -67,7 +67,7 @@ func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, erro
 func (svc *Service) UserRegister(param *UserRegisterRequest) (*UserRegisterResponse, error) {
 	// Validate username if existed
 	_, err := svc.dao.GetUserByName(param.Username)
-	if err != gorm.ErrRecordNotFound {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.New("svc.UserRegister: username existed")
 	}
 
