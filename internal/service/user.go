@@ -40,9 +40,9 @@ func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, erro
 	// Invalid cases
 	hashedPass := hashing.HashPassword(param.Password)
 	if user.Password != hashedPass {
-		return nil, fmt.Errorf("svc.UserLogin: pwd incorrect")
+		return nil, errors.New("svc.UserLogin: pwd incorrect")
 	} else if user.Status != uint8(constant.EnabledStatus) {
-		return nil, fmt.Errorf("svc.UserLogin: status disabled")
+		return nil, errors.New("svc.UserLogin: status disabled")
 	}
 
 	// Validation success
@@ -60,7 +60,7 @@ func (svc *Service) UserRegister(param *UserRegisterRequest) (*UserRegisterRespo
 	// Validate username if existed
 	_, err := svc.dao.GetUserByName(param.Username)
 	if err != gorm.ErrRecordNotFound {
-		return nil, fmt.Errorf("svc.UserRegister: username existed")
+		return nil, errors.New("svc.UserRegister: username existed")
 	}
 
 	// Add Salt to pass

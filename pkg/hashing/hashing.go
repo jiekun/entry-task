@@ -11,6 +11,11 @@ import (
 
 // HashPassword: Added salt and return a hashed string
 func HashPassword(input string) string {
-	hash := md5.Sum([]byte(global.AppSetting.HashSalt + input))
+	return HashWithMD5(global.AppSetting.HashSalt + input)
+}
+
+// HashWithMD5: Return a MD5'd string
+func HashWithMD5(input string) string {
+	hash := md5.Sum([]byte(input))
 	return hex.EncodeToString(hash[:])
 }

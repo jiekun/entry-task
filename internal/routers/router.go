@@ -13,6 +13,7 @@ func NewRouter() *gin.Engine {
 	r := gin.New()
 	ping := api.NewPing()
 	user := api.NewUser()
+	upload := api.NewUpload()
 	apiGroup := r.Group("/api/")
 	{
 		apiGroup.POST("/user/login", user.Login)
@@ -23,6 +24,8 @@ func NewRouter() *gin.Engine {
 	authGroup.Use(middleware.SessionRequired)
 	{
 		authGroup.GET("/ping", ping.Ping)
+		authGroup.POST("/upload/file", upload.Upload)
+
 	}
 	return r
 }

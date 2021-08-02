@@ -22,14 +22,14 @@ func (u User) Login(c *gin.Context) {
 	param := service.UserLoginRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
-		global.Logger.Errorf("app.Register errs: %v", err)
+		global.Logger.Errorf("app.Login errs: %v", err)
 		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}
 	svc := service.New(c.Request.Context())
 	loginResponse, err := svc.UserLogin(&param)
 	if err != nil {
-		global.Logger.Errorf("app.UserLogin errs: %v", err)
+		global.Logger.Errorf("app.Login errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserLogin)
 		return
 	}

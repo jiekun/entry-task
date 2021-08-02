@@ -20,3 +20,7 @@
 
 # Log output
 log/*.log
+
+# Uploads
+upload/files/*
+!upload/files/.gitkeep

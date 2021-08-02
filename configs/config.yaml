@@ -9,7 +9,7 @@ App:
   LogSavePath: log
   LogFileName: app
   LogFileExt: .log
-  UploadSavePath: storage/uploads
+  UploadSavePath: upload/files
   UploadServerUrl: http://localhost:8001/static
   UploadImageMaxSize: 5  # MB
   UploadImageAllowExts:
