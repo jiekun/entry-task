@@ -1,0 +1,13 @@
+default:
+  image: golang:1.15.14-buster
+
+build-job:
+  stage: build
+  script:
+    - echo "Hello, $GITLAB_USER_LOGIN!"
+
+code-format-check-job:
+  stage: test
+  script:
+    - echo "Code format check begin..."
+    - go vet ./...
