@@ -7,29 +7,44 @@
 ├── LICENSE
 ├── README.md
 ├── cmd
-│   ├── grpc-server
-│   └── http-server
-│       └── main.go           // Entry point
-├── configs
-│   └── config.yaml           // Config file
-├── global
-├── go.mod
-├── go.sum
-├── internal
-│   ├── constant
-│   ├── dao
-│   ├── error                 // Error handling and definition
-│   ├── models
-│   ├── routers
-│   │   ├── api               // URL router
-│   │   └── router.go
-│   └── service
-├── log
-├── pkg
-│   ├── logger
-│   ├── resp
-│   └── setting
-└── scripts                   // All init scripts and sql files
+│    ├── grpc-server                        // 
+│    └── http-server                        // 
+│        └── main.go                        // HTTP Server entry point
+├── configs                                 // 
+│    └── config.yaml                        // 
+├── global                                  // 
+│    ├── cache.go                           // 
+│    ├── db.go                              // 
+│    └── setting.go                         // 
+├── go.mod                                  // 
+├── go.sum                                  // 
+├── internal                                // Service Codes
+│    ├── constant                           // 
+│    ├── dao                                // Data Access Object Layer
+│    ├── error                              // 
+│    ├── models                             // 
+│    │    ├── model.go                      // 
+│    │    └── user.go                       // 
+│    ├── routers                            // 
+│    │    ├── api                           // Controller Layer for input params handling
+│    │    │    ├── ping.go                  // 
+│    │    │    ├── upload.go                // 
+│    │    │    └── user.go                  // 
+│    │    └── router.go                     // 
+│    └── service                            // Service Logic Layer
+│        ├── service.go                     // 
+│        ├── upload.go                      // 
+│        └── user.go                        // 
+├── log                                     // 
+├── pkg                                     // Public utils
+│    ├── hashing                            // 
+│    ├── logger                             // 
+│    ├── middleware                         // 
+│    ├── resp                               // 
+│    ├── setting                            // 
+│    └── upload                             // 
+├── scripts                                 // Scripts for initialization 
+└── upload                                  // User upload contents
 ```
 
 ## Setup

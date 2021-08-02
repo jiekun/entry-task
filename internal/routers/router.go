@@ -11,15 +11,19 @@ import (
 
 func NewRouter() *gin.Engine {
 	r := gin.New()
+
 	ping := api.NewPing()
 	user := api.NewUser()
 	upload := api.NewUpload()
+
+	// No need login
 	apiGroup := r.Group("/api/")
 	{
 		apiGroup.POST("/user/login", user.Login)
 		apiGroup.POST("/user/register", user.Register)
 	}
 
+	// Login required
 	authGroup := r.Group("/api/")
 	authGroup.Use(middleware.SessionRequired)
 	{
