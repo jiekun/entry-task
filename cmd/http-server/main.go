@@ -123,6 +123,11 @@ func setupSetting() error {
 		return err
 	}
 
+	err = s.ReadSection("Client", &global.ClientSetting)
+	if err != nil {
+		return err
+	}
+
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
 
@@ -153,28 +158,9 @@ func setupCacheClient() error {
 	return nil
 }
 
-//func setupRPCClient() error {
-//	var err error
-//	addr := "127.0.0.1:8002"
-//	conn, err := net.Dial("tcp", addr)
-//	global.RPCClient = tinyrpc.NewClient(conn)
-//	if err != nil {
-//		return err
-//	}
-//	gob.Register(rpcproto.UserLoginRequest{})
-//	gob.Register(rpcproto.UserLoginResponse{})
-//	gob.Register(rpcproto.UserRegisterRequest{})
-//	gob.Register(rpcproto.UserRegisterResponse{})
-//	gob.Register(rpcproto.UserEditRequest{})
-//	gob.Register(rpcproto.UserEditResponse{})
-//	gob.Register(rpcproto.UserGetRequest{})
-//	gob.Register(rpcproto.UserGetResponse{})
-//	return nil
-//}
-
 func setupRPCClient() error {
 	ctx := context.Background()
-	clientConn, err := grpc.GetClientConn(ctx, "127.0.0.1:8002", nil)
+	clientConn, err := grpc.GetClientConn(ctx, global.ClientSetting.RPCHost, nil)
 	if err != nil {
 		log.Fatalf("err: %v", err)
 	}

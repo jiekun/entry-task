@@ -193,6 +193,11 @@ func setupSetting() error {
 		return err
 	}
 
+	err = s.ReadSection("Client", &global.ClientSetting)
+	if err != nil {
+		return err
+	}
+
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
 

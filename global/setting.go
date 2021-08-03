@@ -13,5 +13,6 @@ var (
 	AppSetting      *setting.AppSettingS
 	DatabaseSetting *setting.DatabaseSettingS
 	CacheSetting    *setting.CacheSettingS
+	ClientSetting   *setting.ClientSettingS
 	Logger          *logger.Logger
 )

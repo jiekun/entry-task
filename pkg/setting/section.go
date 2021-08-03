@@ -45,10 +45,8 @@ type CacheSettingS struct {
 	DBIndex int
 }
 
-type JWTSettingS struct {
-	Secret string
-	Issuer string
-	Expire time.Duration
+type ClientSettingS struct {
+	RPCHost string
 }
 
 type EmailSettingS struct {

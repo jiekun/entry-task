@@ -32,3 +32,5 @@ Database:
 Redis:
   Host: localhost:6379
   DBIndex: 0
+Client:
+  RPCHost: 127.0.0.1:8002
