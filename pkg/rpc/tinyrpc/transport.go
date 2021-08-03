@@ -1,7 +1,7 @@
 // @Author: 2014BDuck
 // @Date: 2021/8/3
 
-package rpc
+package tinyrpc
 
 import (
 	"encoding/binary"

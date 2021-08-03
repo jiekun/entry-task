@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package proto;
+
+service UploadService {
+  rpc UploadFile(UploadRequest) returns (UploadReply) {}
+}
+
+message UploadRequest {
+  uint32 file_type = 1;
+  string file_name = 2;
+  bytes content = 3;
+}
+
+message UploadReply {
+  string file_url = 1;
+  string file_name = 2;
+}

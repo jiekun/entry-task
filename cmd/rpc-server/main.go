@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/models"
-	rpcproto "github.com/2014bduck/entry-task/internal/rpc-proto"
 	"github.com/2014bduck/entry-task/internal/rpc-service"
 	"github.com/2014bduck/entry-task/pkg/logger"
-	"github.com/2014bduck/entry-task/pkg/rpc"
+	"github.com/2014bduck/entry-task/pkg/rpc/tinyrpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
+	rpcproto "github.com/2014bduck/entry-task/proto/rpc-proto"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"log"
@@ -59,7 +59,7 @@ func (s *Server) Run() {
 		}
 
 		go func() {
-			srvTransport := rpc.NewTransport(conn)
+			srvTransport := tinyrpc.NewTransport(conn)
 
 			for {
 				// read request from client
@@ -75,7 +75,7 @@ func (s *Server) Run() {
 				if !ok { // if method requested does not exist
 					e := fmt.Sprintf("func %s does not exist", req.Name)
 					log.Println(e)
-					if err = srvTransport.Send(rpc.Data{Name: req.Name, Err: e}); err != nil {
+					if err = srvTransport.Send(tinyrpc.Data{Name: req.Name, Err: e}); err != nil {
 						log.Printf("transport write err: %v\n", err)
 					}
 					continue
@@ -101,7 +101,7 @@ func (s *Server) Run() {
 					e = out[len(out)-1].Interface().(error).Error()
 				}
 				// send response to client
-				err = srvTransport.Send(rpc.Data{Name: req.Name, Args: outArgs, Err: e})
+				err = srvTransport.Send(tinyrpc.Data{Name: req.Name, Args: outArgs, Err: e})
 				if err != nil {
 					log.Printf("transport write err: %v\n", err)
 				}

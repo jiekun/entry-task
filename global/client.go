@@ -3,8 +3,10 @@
 
 package global
 
-import "github.com/2014bduck/entry-task/pkg/rpc"
+import (
+	"google.golang.org/grpc"
+)
 
 var (
-	RPCClient *rpc.Client
+	GRPCClient *grpc.ClientConn
 )

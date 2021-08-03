@@ -5,10 +5,9 @@ package service
 
 import (
 	"errors"
-	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/pkg/upload"
+	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
 	"mime/multipart"
-	"os"
 )
 
 type UploadFileRequest struct {
@@ -20,26 +19,34 @@ type UploadFileResponse struct {
 }
 
 func (svc *Service) UploadFile(fileType int, file multipart.File, fileHeader *multipart.FileHeader) (*UploadFileResponse, error) {
-	fileName := upload.GetFileName(fileHeader.Filename) // MD5'd
-	uploadSavePath := upload.GetSavePath()
-	dst := uploadSavePath + "/" + fileName
-	if !upload.CheckContainExt(upload.FileType(fileType), fileName) {
+	// Basic Check
+	if !upload.CheckContainExt(upload.FileType(fileType), fileHeader.Filename) {
 		return nil, errors.New("svc.UploadFile: file suffix is not supported")
 	}
-	if upload.CheckSavePath(uploadSavePath) {
-		if err := upload.CreateSavePath(dst, os.ModePerm); err != nil {
-			return nil, errors.New("svc.UploadFile: failed to create save directory")
-		}
-	}
+
 	if upload.CheckMaxSize(upload.FileType(fileType), file) {
 		return nil, errors.New("svc.UploadFile: exceed maximum file limit")
 	}
-	if upload.CheckPermission(uploadSavePath) {
-		return nil, errors.New("svc.UploadFile: insufficient file permissions")
+
+	// Read to []byte
+	content, err := upload.GetFileByte(fileHeader)
+	if err != nil {
+		return nil, errors.New("svc.UploadFile: failed reading file to []byte")
 	}
-	if err := upload.SaveFile(fileHeader, dst); err != nil {
+
+	// Transfer []byte via RPC
+	userServiceClient := pb.NewUploadServiceClient(svc.rpcClient)
+	resp, err := userServiceClient.UploadFile(svc.ctx, &pb.UploadRequest{
+		FileType: uint32(fileType),
+		FileName:   fileHeader.Filename,
+		Content:    content,
+	})
+	if err != nil {
 		return nil, err
 	}
-	fileUrl := global.AppSetting.UploadServerUrl + "/" + fileName
-	return &UploadFileResponse{FileUrl: fileUrl, FileName: fileName}, nil
+	return &UploadFileResponse{
+		FileName: resp.FileName,
+		FileUrl:  resp.FileUrl,
+	}, nil
+
 }

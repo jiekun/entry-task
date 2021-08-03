@@ -96,7 +96,7 @@ func (u User) Get(c *gin.Context) {
 	getResponse, err := svc.CallGetUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Get errs: %v", err)
-		response.ToErrorResponse(errcode.ErrorUserRegister)
+		response.ToErrorResponse(errcode.ErrorUserGet)
 		return
 	}
 	response.ToResponse("Get Succeed.", getResponse)

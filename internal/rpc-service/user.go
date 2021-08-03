@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/constant"
-	rpcproto "github.com/2014bduck/entry-task/internal/rpc-proto"
 	"github.com/2014bduck/entry-task/pkg/hashing"
+	rpcproto "github.com/2014bduck/entry-task/proto/rpc-proto"
 	"github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )

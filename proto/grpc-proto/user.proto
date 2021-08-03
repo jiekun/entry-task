@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package proto;
+
+service UserService {
+  rpc Login(LoginRequest) returns (LoginReply) {}
+  rpc Register(RegisterRequest) returns (RegisterReply) {}
+  rpc GetUser(GetUserRequest) returns (GetUserReply) {}
+  rpc EditUser(EditUserRequest) returns (EditUserReply) {}
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+  string nickname = 3;
+  string profile_pic = 4;
+}
+
+message EditUserRequest {
+  string session_id = 1;
+  string nickname = 2;
+  string profile_pic = 3;
+}
+
+message GetUserRequest {
+  string session_id = 1;
+}
+
+message LoginReply {
+  string session_id = 1;
+}
+
+message RegisterReply {}
+
+message EditUserReply {}
+
+message GetUserReply {
+  string username = 1;
+  string nickname = 2;
+  string profile_pic = 3;
+}

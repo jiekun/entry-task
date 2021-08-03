@@ -1,22 +1,24 @@
+// @Author: 2014BDuck
+// @Date: 2021/8/3
+
 package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"github.com/2014bduck/entry-task/global"
+	grpc_service "github.com/2014bduck/entry-task/internal/grpc-service"
 	"github.com/2014bduck/entry-task/internal/models"
-	"github.com/2014bduck/entry-task/internal/routers"
 	"github.com/2014bduck/entry-task/pkg/logger"
-	"github.com/2014bduck/entry-task/pkg/rpc/grpc"
+	"github.com/2014bduck/entry-task/pkg/middleware"
 	"github.com/2014bduck/entry-task/pkg/setting"
+	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
+	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"google.golang.org/grpc"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
-	"net/http"
-	"os"
-	"os/signal"
+	"net"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -25,38 +27,6 @@ var (
 	runMode string
 	config  string
 )
-
-func main() {
-	r := routers.NewRouter()
-
-	s := &http.Server{
-		Addr:           ":" + global.ServerSetting.HttpPort,
-		Handler:        r,
-		ReadTimeout:    global.ServerSetting.ReadTimeout,
-		WriteTimeout:   global.ServerSetting.WriteTimeout,
-		MaxHeaderBytes: 1 << 20,
-	}
-
-	go func() {
-		log.Printf("Starting HTTP server, Listening %s...\n", s.Addr)
-		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("s.ListenAndServe err: %v", err)
-		}
-	}()
-
-	quit := make(chan os.Signal)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := s.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
-	}
-
-	log.Println("Server exiting")
-}
 
 func init() {
 	err := setupFlag()
@@ -77,11 +47,6 @@ func init() {
 	err = setupCacheClient()
 	if err != nil {
 		log.Fatalf("init.setupCacheClient err: %v", err)
-	}
-
-	err = setupRPCClient()
-	if err != nil{
-		log.Fatalf("init.setupRPCClient err: %v", err)
 	}
 
 	err = setupLogger()
@@ -122,7 +87,7 @@ func setupSetting() error {
 	global.ServerSetting.WriteTimeout *= time.Second
 
 	if port != "" {
-		global.ServerSetting.HttpPort = port
+		global.ServerSetting.RPCPort = port
 	}
 	if runMode != "" {
 		global.ServerSetting.RunMode = runMode
@@ -148,35 +113,6 @@ func setupCacheClient() error {
 	return nil
 }
 
-//func setupRPCClient() error {
-//	var err error
-//	addr := "127.0.0.1:8002"
-//	conn, err := net.Dial("tcp", addr)
-//	global.RPCClient = tinyrpc.NewClient(conn)
-//	if err != nil {
-//		return err
-//	}
-//	gob.Register(rpcproto.UserLoginRequest{})
-//	gob.Register(rpcproto.UserLoginResponse{})
-//	gob.Register(rpcproto.UserRegisterRequest{})
-//	gob.Register(rpcproto.UserRegisterResponse{})
-//	gob.Register(rpcproto.UserEditRequest{})
-//	gob.Register(rpcproto.UserEditResponse{})
-//	gob.Register(rpcproto.UserGetRequest{})
-//	gob.Register(rpcproto.UserGetResponse{})
-//	return nil
-//}
-
-func setupRPCClient() error {
-	ctx := context.Background()
-	clientConn, err := grpc.GetClientConn(ctx, "127.0.0.1:8002", nil)
-	if err != nil {
-		log.Fatalf("err: %v", err)
-	}
-	global.GRPCClient = clientConn
-	return nil
-}
-
 func setupLogger() error {
 	global.Logger = logger.NewLogger(
 		&lumberjack.Logger{
@@ -190,4 +126,26 @@ func setupLogger() error {
 	).WithCaller(2)
 
 	return nil
+}
+
+func main() {
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
+			middleware.Recovery,
+		)),
+	}
+	s := grpc.NewServer(opts...)
+	c := context.Background()
+
+	pb.RegisterUserServiceServer(s, grpc_service.NewUserService(c))
+	pb.RegisterUploadServiceServer(s, grpc_service.NewUploadService(c))
+
+	lis, err := net.Listen("tcp", ":"+global.ServerSetting.RPCPort)
+	if err != nil {
+		log.Fatalf("net.Listen err: %v", err)
+	}
+	err = s.Serve(lis)
+	if err != nil {
+		log.Fatalf("net.Serve err: %v", err)
+	}
 }

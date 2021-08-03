@@ -4,6 +4,7 @@
 package upload
 
 import (
+	"bytes"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/pkg/hashing"
 	"io"
@@ -93,5 +94,24 @@ func SaveFile(file *multipart.FileHeader, dst string) error {
 	defer out.Close()
 
 	_, err = io.Copy(out, src)
+	return err
+}
+
+func GetFileByte(file *multipart.FileHeader) ([]byte, error) {
+	src, err := file.Open()
+	if err != nil {
+		return nil, err
+	}
+	defer src.Close()
+
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, src); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func SaveFileByte(file *[]byte, dst string) error {
+	err := ioutil.WriteFile(dst, *file, 0644)
 	return err
 }
