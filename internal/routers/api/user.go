@@ -28,7 +28,7 @@ func (u User) Login(c *gin.Context) {
 		return
 	}
 	svc := service.New(c.Request.Context())
-	loginResponse, err := svc.UserLogin(&param)
+	loginResponse, err := svc.CallLogin(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Login errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserLogin)
@@ -49,7 +49,7 @@ func (u User) Register(c *gin.Context) {
 		return
 	}
 	svc := service.New(c.Request.Context())
-	loginResponse, err := svc.UserRegister(&param)
+	loginResponse, err := svc.CallRegister(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Register errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserRegister)
@@ -69,12 +69,12 @@ func (u User) Edit(c *gin.Context) {
 		return
 	}
 
-	// Get username set by Auth middleware
-	username, _ := c.Get("username")
-	param.Username = fmt.Sprintf("%v", username)
+	// Get sessionID set by Auth middleware
+	sessionID, _ := c.Get("sessionID")
+	param.SessionID = fmt.Sprintf("%v", sessionID)
 
 	svc := service.New(c.Request.Context())
-	editResponse, err := svc.UserEdit(&param)
+	editResponse, err := svc.CallEditUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Edit errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserRegister)
@@ -88,12 +88,12 @@ func (u User) Get(c *gin.Context) {
 	response := resp.NewResponse(c)
 	param := service.UserGetRequest{}
 
-	// Get username set by Auth middleware
-	username, _ := c.Get("username")
-	param.Username = fmt.Sprintf("%v", username)
+	// Get sessionID set by Auth middleware
+	sessionID, _ := c.Get("sessionID")
+	param.SessionID = fmt.Sprintf("%v", sessionID)
 
 	svc := service.New(c.Request.Context())
-	getResponse, err := svc.UserGet(&param)
+	getResponse, err := svc.CallGetUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Get errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserRegister)

@@ -8,9 +8,11 @@ import (
 	"github.com/2014bduck/entry-task/internal/models"
 	"github.com/2014bduck/entry-task/internal/routers"
 	"github.com/2014bduck/entry-task/pkg/logger"
+	"github.com/2014bduck/entry-task/pkg/rpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -37,6 +39,7 @@ func main() {
 	}
 
 	go func() {
+		log.Printf("Starting HTTP server, Listening %s...\n", s.Addr)
 		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("s.ListenAndServe err: %v", err)
 		}
@@ -75,6 +78,11 @@ func init() {
 	err = setupCacheClient()
 	if err != nil {
 		log.Fatalf("init.setupCacheClient err: %v", err)
+	}
+
+	err = setupRPCClient()
+	if err != nil{
+		log.Fatalf("init.setupRPCClient err: %v", err)
 	}
 
 	err = setupLogger()
@@ -135,6 +143,17 @@ func setupDBEngine() error {
 func setupCacheClient() error {
 	var err error
 	global.CacheClient, err = models.NewCacheClient()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func setupRPCClient() error {
+	var err error
+	addr := "127.0.0.1:8002"
+	conn, err := net.Dial("tcp", addr)
+	global.RPCClient = rpc.NewClient(conn)
 	if err != nil {
 		return err
 	}

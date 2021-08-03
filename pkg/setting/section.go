@@ -8,6 +8,7 @@ import "time"
 type ServerSettingS struct {
 	RunMode      string
 	HttpPort     string
+	RPCPort      string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 }

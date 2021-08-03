@@ -4,14 +4,8 @@
 package service
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/2014bduck/entry-task/global"
-	"github.com/2014bduck/entry-task/internal/constant"
-	"github.com/2014bduck/entry-task/pkg/hashing"
-	"github.com/satori/go.uuid"
-	"gorm.io/gorm"
+	"encoding/gob"
+	rpcproto "github.com/2014bduck/entry-task/internal/rpc-proto"
 )
 
 type UserLoginRequest struct {
@@ -27,13 +21,13 @@ type UserRegisterRequest struct {
 }
 
 type UserEditRequest struct {
-	Username   string `form:"username"`
+	SessionID  string `form:"session_id"`
 	Nickname   string `form:"nickname"`
 	ProfilePic string `form:"profile_pic"`
 }
 
 type UserGetRequest struct {
-	Username string `form:"username"`
+	SessionID string `form:"session_id"`
 }
 
 type UserLoginResponse struct {
@@ -50,117 +44,75 @@ type UserGetResponse struct {
 	ProfilePic string `json:"profile_pic"`
 }
 
-const (
-	userProfileCachePrefix = "user_profile:"
-	sessionIDCachePrefix = "session_id:"
-)
+func (svc *Service) CallLogin(param *UserLoginRequest) (*UserLoginResponse, error) {
+	gob.Register(rpcproto.UserLoginRequest{})
+	gob.Register(rpcproto.UserLoginResponse{})
+	var callLogin func(rpcproto.UserLoginRequest) (rpcproto.UserLoginResponse, error)
+	svc.rpcClient.Call("Login", &callLogin)
 
-func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, error) {
-	// Find user
-	user, err := svc.dao.GetUserByName(param.Username)
+	loginResp, err := callLogin(rpcproto.UserLoginRequest{
+		Username: param.Username,
+		Password: param.Password,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Invalid cases
-	hashedPass := hashing.HashPassword(param.Password)
-	if user.Password != hashedPass {
-		return nil, errors.New("svc.UserLogin: pwd incorrect")
-	} else if user.Status != uint8(constant.EnabledStatus) {
-		return nil, errors.New("svc.UserLogin: status disabled")
-	}
-
-	// Validation success
-	// Setting session cache
-	sessionID := uuid.NewV4()
-	err = svc.cache.Cache.Set(sessionIDCachePrefix + sessionID.String(), []byte(param.Username))
-
-	if err != nil {
-		return nil, err
-	}
-	return &UserLoginResponse{SessionID: sessionID.String()}, nil
+	return &UserLoginResponse{loginResp.SessionID}, nil
 }
 
-func (svc *Service) UserRegister(param *UserRegisterRequest) (*UserRegisterResponse, error) {
-	// Validate username if existed
-	_, err := svc.dao.GetUserByName(param.Username)
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.New("svc.UserRegister: username existed")
-	}
+func (svc *Service) CallRegister(param *UserRegisterRequest) (*UserRegisterResponse, error) {
+	gob.Register(rpcproto.UserRegisterRequest{})
+	gob.Register(rpcproto.UserRegisterResponse{})
+	var callRegister func(rpcproto.UserRegisterRequest) (rpcproto.UserRegisterResponse, error)
+	svc.rpcClient.Call("Register", &callRegister)
 
-	// Add Salt to pass
-	hashedPass := hashing.HashPassword(param.Password)
-
-	// Create User to DB
-	_, err = svc.dao.CreateUser(param.Username, hashedPass, param.Nickname, param.ProfilePic, uint8(constant.EnabledStatus))
+	_, err := callRegister(rpcproto.UserRegisterRequest{
+		Username: param.Username,
+		Password: param.Password,
+		Nickname: param.Nickname,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("svc.UserRegister: CreateUser error: %v", err)
+		return nil, err
 	}
 
 	return &UserRegisterResponse{}, nil
 }
 
-func (svc *Service) UserEdit(param *UserEditRequest) (*UserEditResponse, error) {
-	// Query current user
-	user, err := svc.dao.GetUserByName(param.Username)
+func (svc *Service) CallEditUser(param *UserEditRequest) (*UserEditResponse, error) {
+	gob.Register(rpcproto.UserEditRequest{})
+	gob.Register(rpcproto.UserEditResponse{})
+	var callEdit func(rpcproto.UserEditRequest) (rpcproto.UserEditResponse, error)
+	svc.rpcClient.Call("EditUser", &callEdit)
+
+	_, err := callEdit(rpcproto.UserEditRequest{
+		SessionID:  param.SessionID,
+		Nickname:   param.Nickname,
+		ProfilePic: param.ProfilePic,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("svc.UserEdit: %v", err)
+		return nil, err
 	}
 
-	// Validate user status
-	if constant.Status(user.Status) != constant.EnabledStatus {
-		return nil, errors.New("svc.UserEdit: Invalid user status")
-	}
-
-	// Update user data
-	err = svc.dao.UpdateUser(user.ID, param.Nickname, param.ProfilePic)
-	if err != nil {
-		return nil, fmt.Errorf("svc.UserEdit: %v", err)
-	}
 	return &UserEditResponse{}, nil
 }
 
-func (svc *Service) UserGet(param *UserGetRequest) (*UserGetResponse, error) {
-	cacheKey := userProfileCachePrefix + param.Username
+func (svc *Service) CallGetUser(param *UserGetRequest) (*UserGetResponse, error) {
+	gob.Register(rpcproto.UserGetRequest{})
+	gob.Register(rpcproto.UserGetResponse{})
+	var callGet func(rpcproto.UserGetRequest) (rpcproto.UserGetResponse, error)
+	svc.rpcClient.Call("GetUser", &callGet)
 
-	// Try loading user info from cache
-	userProfCache, err :=svc.cache.Cache.Get(cacheKey)
-	if err == nil && userProfCache != nil{
-		userGetCacheResp := UserGetResponse{}
-		err = json.Unmarshal(userProfCache, &userGetCacheResp)
-		if err != nil{
-			global.Logger.Errorf("svc.UserGet: Unmarshal cache failed: %v", err)
-		}else{
-			return &userGetCacheResp, nil
-		}
-	}
-
-	// Query user from DB
-	user, err := svc.dao.GetUserByName(param.Username)
+	getResp, err := callGet(rpcproto.UserGetRequest{
+		SessionID: param.SessionID,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("svc.UserGet: %v", err)
-	}
-	userGetResp := &UserGetResponse{
-		Username:   user.Name,
-		Nickname:   user.Nickname,
-		ProfilePic: user.ProfilePic,
+		return nil, err
 	}
 
-	// Set user to cache
-	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Cache.Set(cacheKey, cacheUser)  // Omit error
-	if err != nil{
-		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
-	}
-
-	return userGetResp, nil
-}
-
-func (svc *Service) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(sessionIDCachePrefix + sessionID)
-
-	if err != nil || username == nil {
-		return "", errors.New("svc.UserAuth failed")
-	}
-	return string(username), nil
+	return &UserGetResponse{
+		getResp.Username,
+		getResp.Nickname,
+		getResp.ProfilePic,
+	}, nil
 }

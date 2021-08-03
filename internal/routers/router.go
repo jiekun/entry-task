@@ -28,7 +28,6 @@ func NewRouter() *gin.Engine {
 	authGroup := r.Group("/api/")
 	authGroup.Use(middleware.SessionRequired)
 	{
-		//authGroup.GET("/ping", ping.Ping)
 		authGroup.GET("/user/get", user.Get)
 		authGroup.POST("/user/edit", user.Edit)
 		authGroup.POST("/upload/file", upload.Upload)
