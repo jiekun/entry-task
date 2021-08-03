@@ -4,8 +4,10 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/constant"
 	"github.com/2014bduck/entry-task/pkg/hashing"
 	"github.com/satori/go.uuid"
@@ -30,6 +32,10 @@ type UserEditRequest struct {
 	ProfilePic string `form:"profile_pic"`
 }
 
+type UserGetRequest struct {
+	Username string `form:"username"`
+}
+
 type UserLoginResponse struct {
 	SessionID string `json:"session_id"`
 }
@@ -37,6 +43,17 @@ type UserLoginResponse struct {
 type UserRegisterResponse struct{}
 
 type UserEditResponse struct{}
+
+type UserGetResponse struct {
+	Username   string `json:"username"`
+	Nickname   string `json:"nickname"`
+	ProfilePic string `json:"profile_pic"`
+}
+
+const (
+	userProfileCachePrefix = "user_profile:"
+	sessionIDCachePrefix = "session_id:"
+)
 
 func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, error) {
 	// Find user
@@ -56,7 +73,7 @@ func (svc *Service) UserLogin(param *UserLoginRequest) (*UserLoginResponse, erro
 	// Validation success
 	// Setting session cache
 	sessionID := uuid.NewV4()
-	err = svc.cache.Cache.Set(sessionID.String(), []byte(param.Username))
+	err = svc.cache.Cache.Set(sessionIDCachePrefix + sessionID.String(), []byte(param.Username))
 
 	if err != nil {
 		return nil, err
@@ -103,8 +120,44 @@ func (svc *Service) UserEdit(param *UserEditRequest) (*UserEditResponse, error) 
 	return &UserEditResponse{}, nil
 }
 
+func (svc *Service) UserGet(param *UserGetRequest) (*UserGetResponse, error) {
+	cacheKey := userProfileCachePrefix + param.Username
+
+	// Try loading user info from cache
+	userProfCache, err :=svc.cache.Cache.Get(cacheKey)
+	if err == nil && userProfCache != nil{
+		userGetCacheResp := UserGetResponse{}
+		err = json.Unmarshal(userProfCache, &userGetCacheResp)
+		if err != nil{
+			global.Logger.Errorf("svc.UserGet: Unmarshal cache failed: %v", err)
+		}else{
+			return &userGetCacheResp, nil
+		}
+	}
+
+	// Query user from DB
+	user, err := svc.dao.GetUserByName(param.Username)
+	if err != nil {
+		return nil, fmt.Errorf("svc.UserGet: %v", err)
+	}
+	userGetResp := &UserGetResponse{
+		Username:   user.Name,
+		Nickname:   user.Nickname,
+		ProfilePic: user.ProfilePic,
+	}
+
+	// Set user to cache
+	cacheUser, _ := json.Marshal(userGetResp)
+	err = svc.cache.Cache.Set(cacheKey, cacheUser)  // Omit error
+	if err != nil{
+		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
+	}
+
+	return userGetResp, nil
+}
+
 func (svc *Service) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(sessionID)
+	username, err := svc.cache.Cache.Get(sessionIDCachePrefix + sessionID)
 
 	if err != nil || username == nil {
 		return "", errors.New("svc.UserAuth failed")

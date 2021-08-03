@@ -83,3 +83,22 @@ func (u User) Edit(c *gin.Context) {
 	response.ToResponse("Edit Succeed.", editResponse)
 	return
 }
+
+func (u User) Get(c *gin.Context) {
+	response := resp.NewResponse(c)
+	param := service.UserGetRequest{}
+
+	// Get username set by Auth middleware
+	username, _ := c.Get("username")
+	param.Username = fmt.Sprintf("%v", username)
+
+	svc := service.New(c.Request.Context())
+	getResponse, err := svc.UserGet(&param)
+	if err != nil {
+		global.Logger.Errorf("app.Get errs: %v", err)
+		response.ToErrorResponse(errcode.ErrorUserRegister)
+		return
+	}
+	response.ToResponse("Get Succeed.", getResponse)
+	return
+}
