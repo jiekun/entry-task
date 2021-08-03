@@ -13,7 +13,7 @@ import (
 type Service struct {
 	ctx   context.Context
 	dao   *dao.Dao
-	cache *dao.InProcessCache
+	cache *dao.RedisCache
 	rpcClient *grpc.ClientConn
 }
 

@@ -3,8 +3,8 @@
 
 package global
 
-import "github.com/allegro/bigcache/v3"
+import "github.com/go-redis/redis/v8"
 
 var (
-	CacheClient *bigcache.BigCache
+	CacheClient *redis.Client
 )

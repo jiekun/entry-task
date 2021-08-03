@@ -188,6 +188,11 @@ func setupSetting() error {
 		return err
 	}
 
+	err = s.ReadSection("Redis", &global.CacheSetting)
+	if err != nil {
+		return err
+	}
+
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
 
@@ -211,7 +216,7 @@ func setupDBEngine() error {
 
 func setupCacheClient() error {
 	var err error
-	global.CacheClient, err = models.NewCacheClient()
+	global.CacheClient, err = models.NewCacheClient(global.CacheSetting)
 	if err != nil {
 		return err
 	}

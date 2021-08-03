@@ -15,7 +15,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
 func (svc *Service) UserLogin(param rpcproto.UserLoginRequest) (*rpcproto.UserLoginResponse, error) {
 	// Find user
 	user, err := svc.dao.GetUserByName(param.Username)
@@ -34,7 +33,7 @@ func (svc *Service) UserLogin(param rpcproto.UserLoginRequest) (*rpcproto.UserLo
 	// Validation success
 	// Setting session cache
 	sessionID := uuid.NewV4()
-	err = svc.cache.Cache.Set(constant.SessionIDCachePrefix+sessionID.String(), []byte(param.Username))
+	err = svc.cache.Cache.Set(svc.ctx, constant.SessionIDCachePrefix+sessionID.String(), []byte(param.Username), 0).Err()
 
 	if err != nil {
 		return &rpcproto.UserLoginResponse{}, err
@@ -97,10 +96,10 @@ func (svc *Service) UserGet(param rpcproto.UserGetRequest) (*rpcproto.UserGetRes
 	cacheKey := constant.UserProfileCachePrefix + username
 
 	// Try loading user info from cache
-	userProfCache, err := svc.cache.Cache.Get(cacheKey)
-	if err == nil && userProfCache != nil {
+	userProfCache, err := svc.cache.Cache.Get(svc.ctx, cacheKey).Result()
+	if err == nil {
 		userGetCacheResp := rpcproto.UserGetResponse{}
-		err = json.Unmarshal(userProfCache, &userGetCacheResp)
+		err = json.Unmarshal([]byte(userProfCache), &userGetCacheResp)
 		if err != nil {
 			global.Logger.Errorf("svc.UserGet: Unmarshal cache failed: %v", err)
 		} else {
@@ -121,7 +120,7 @@ func (svc *Service) UserGet(param rpcproto.UserGetRequest) (*rpcproto.UserGetRes
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Cache.Set(cacheKey, cacheUser) // Omit error
+	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 0).Err() // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}
@@ -130,10 +129,10 @@ func (svc *Service) UserGet(param rpcproto.UserGetRequest) (*rpcproto.UserGetRes
 }
 
 func (svc *Service) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(constant.SessionIDCachePrefix + sessionID)
+	username, err := svc.cache.Cache.Get(svc.ctx, constant.SessionIDCachePrefix+sessionID).Result()
 
-	if err != nil || username == nil {
+	if err != nil {
 		return "", errors.New("svc.UserAuth failed")
 	}
-	return string(username), nil
+	return username, nil
 }

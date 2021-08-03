@@ -17,7 +17,7 @@ import (
 type UploadService struct {
 	ctx   context.Context
 	dao   *dao.Dao
-	cache *dao.InProcessCache
+	cache *dao.RedisCache
 	pb.UnimplementedUploadServiceServer
 }
 
@@ -52,10 +52,10 @@ func (svc UploadService) UploadFile(ctx context.Context, r *pb.UploadRequest) (*
 }
 
 func (svc UserService) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(constant.SessionIDCachePrefix + sessionID)
+	username, err := svc.cache.Cache.Get(svc.ctx, constant.SessionIDCachePrefix + sessionID).Result()
 
-	if err != nil || username == nil {
+	if err != nil {
 		return "", errors.New("svc.UserAuth failed")
 	}
-	return string(username), nil
+	return username, nil
 }

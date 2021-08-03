@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/pkg/setting"
-	"github.com/allegro/bigcache/v3"
+	"github.com/go-redis/redis/v8"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -58,10 +58,10 @@ func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewCacheClient() (*bigcache.BigCache, error) {
-	cache, err := bigcache.NewBigCache(bigcache.DefaultConfig(30 * time.Minute))
-	if err != nil {
-		return nil, err
-	}
-	return cache, nil
+func NewCacheClient(cacheSetting *setting.CacheSettingS) (*redis.Client, error) {
+	rClient := redis.NewClient(&redis.Options{
+		Addr: cacheSetting.Host,
+		DB:   cacheSetting.DBIndex, // use default DB
+	})
+	return rClient, nil
 }

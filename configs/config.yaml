@@ -29,3 +29,6 @@ Database:
   ParseTime: True
   MaxIdleConns: 10
   MaxOpenConns: 30
+Redis:
+  Host: localhost:6379
+  DBIndex: 0

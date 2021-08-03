@@ -100,10 +100,10 @@ func (svc *Service) CallGetUser(param *UserGetRequest) (*UserGetResponse, error)
 }
 
 func (svc *Service) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(constant.SessionIDCachePrefix + sessionID)
+	username, err := svc.cache.Cache.Get(svc.ctx, constant.SessionIDCachePrefix+sessionID).Result()
 
-	if err != nil || username == nil {
+	if err != nil {
 		return "", errors.New("svc.UserAuth failed")
 	}
-	return string(username), nil
+	return username, nil
 }

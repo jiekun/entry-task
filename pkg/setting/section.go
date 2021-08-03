@@ -40,6 +40,11 @@ type DatabaseSettingS struct {
 	MaxOpenConns int
 }
 
+type CacheSettingS struct {
+	Host    string
+	DBIndex int
+}
+
 type JWTSettingS struct {
 	Secret string
 	Issuer string

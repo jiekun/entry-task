@@ -4,14 +4,14 @@
 package dao
 
 import (
-	"github.com/allegro/bigcache/v3"
+	"github.com/go-redis/redis/v8"
 )
 
-type InProcessCache struct {
-	Cache *bigcache.BigCache
+type RedisCache struct {
+	Cache *redis.Client
 }
 
 
-func NewCache(cacheClient *bigcache.BigCache) *InProcessCache {
-	return &InProcessCache{Cache: cacheClient}
+func NewCache(cacheClient *redis.Client) *RedisCache {
+	return &RedisCache{Cache: cacheClient}
 }
