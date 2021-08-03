@@ -16,7 +16,7 @@ type UserRegisterRequest struct {
 }
 
 type UserEditRequest struct {
-	SessionID string
+	SessionID  string
 	Nickname   string `form:"nickname"`
 	ProfilePic string `form:"profile_pic"`
 }

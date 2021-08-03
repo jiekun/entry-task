@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/gob"
 	"errors"
 	"flag"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/models"
 	"github.com/2014bduck/entry-task/internal/routers"
+	rpcproto "github.com/2014bduck/entry-task/internal/rpc-proto"
 	"github.com/2014bduck/entry-task/pkg/logger"
 	"github.com/2014bduck/entry-task/pkg/rpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
@@ -157,6 +159,14 @@ func setupRPCClient() error {
 	if err != nil {
 		return err
 	}
+	gob.Register(rpcproto.UserLoginRequest{})
+	gob.Register(rpcproto.UserLoginResponse{})
+	gob.Register(rpcproto.UserRegisterRequest{})
+	gob.Register(rpcproto.UserRegisterResponse{})
+	gob.Register(rpcproto.UserEditRequest{})
+	gob.Register(rpcproto.UserEditResponse{})
+	gob.Register(rpcproto.UserGetRequest{})
+	gob.Register(rpcproto.UserGetResponse{})
 	return nil
 }
 

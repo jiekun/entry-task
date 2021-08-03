@@ -15,10 +15,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	userProfileCachePrefix = "user_profile:"
-	sessionIDCachePrefix   = "session_id:"
-)
 
 func (svc *Service) UserLogin(param rpcproto.UserLoginRequest) (*rpcproto.UserLoginResponse, error) {
 	// Find user
@@ -30,15 +26,15 @@ func (svc *Service) UserLogin(param rpcproto.UserLoginRequest) (*rpcproto.UserLo
 	// Invalid cases
 	hashedPass := hashing.HashPassword(param.Password)
 	if user.Password != hashedPass {
-		return nil, errors.New("svc.UserLogin: pwd incorrect")
+		return &rpcproto.UserLoginResponse{}, errors.New("svc.UserLogin: pwd incorrect")
 	} else if user.Status != uint8(constant.EnabledStatus) {
-		return nil, errors.New("svc.UserLogin: status disabled")
+		return &rpcproto.UserLoginResponse{}, errors.New("svc.UserLogin: status disabled")
 	}
 
 	// Validation success
 	// Setting session cache
 	sessionID := uuid.NewV4()
-	err = svc.cache.Cache.Set(sessionIDCachePrefix+sessionID.String(), []byte(param.Username))
+	err = svc.cache.Cache.Set(constant.SessionIDCachePrefix+sessionID.String(), []byte(param.Username))
 
 	if err != nil {
 		return &rpcproto.UserLoginResponse{}, err
@@ -98,7 +94,7 @@ func (svc *Service) UserGet(param rpcproto.UserGetRequest) (*rpcproto.UserGetRes
 		return &rpcproto.UserGetResponse{}, err
 	}
 
-	cacheKey := userProfileCachePrefix + username
+	cacheKey := constant.UserProfileCachePrefix + username
 
 	// Try loading user info from cache
 	userProfCache, err := svc.cache.Cache.Get(cacheKey)
@@ -134,7 +130,7 @@ func (svc *Service) UserGet(param rpcproto.UserGetRequest) (*rpcproto.UserGetRes
 }
 
 func (svc *Service) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(sessionIDCachePrefix + sessionID)
+	username, err := svc.cache.Cache.Get(constant.SessionIDCachePrefix + sessionID)
 
 	if err != nil || username == nil {
 		return "", errors.New("svc.UserAuth failed")

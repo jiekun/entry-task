@@ -11,7 +11,7 @@ import (
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/models"
 	rpcproto "github.com/2014bduck/entry-task/internal/rpc-proto"
-	"github.com/2014bduck/entry-task/internal/rpcservice"
+	"github.com/2014bduck/entry-task/internal/rpc-service"
 	"github.com/2014bduck/entry-task/pkg/logger"
 	"github.com/2014bduck/entry-task/pkg/rpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
@@ -235,16 +235,15 @@ func setupLogger() error {
 
 func registerRPC(s *Server, svc rpcservice.Service) {
 	gob.Register(rpcproto.UserLoginRequest{})
-	gob.Register(rpcproto.UserGetRequest{})
-	gob.Register(rpcproto.UserRegisterRequest{})
-	gob.Register(rpcproto.UserEditRequest{})
 	gob.Register(rpcproto.UserLoginResponse{})
-	gob.Register(rpcproto.UserGetResponse{})
+	gob.Register(rpcproto.UserRegisterRequest{})
 	gob.Register(rpcproto.UserRegisterResponse{})
+	gob.Register(rpcproto.UserEditRequest{})
 	gob.Register(rpcproto.UserEditResponse{})
+	gob.Register(rpcproto.UserGetRequest{})
+	gob.Register(rpcproto.UserGetResponse{})
 	s.Register("Register", svc.UserRegister)
 	s.Register("Login", svc.UserLogin)
 	s.Register("EditUser", svc.UserEdit)
 	s.Register("GetUser", svc.UserGet)
-	s.Register("UploadFile", svc.UploadFile)
 }

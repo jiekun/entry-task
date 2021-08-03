@@ -4,7 +4,8 @@
 package service
 
 import (
-	"encoding/gob"
+	"errors"
+	"github.com/2014bduck/entry-task/internal/constant"
 	rpcproto "github.com/2014bduck/entry-task/internal/rpc-proto"
 )
 
@@ -45,8 +46,6 @@ type UserGetResponse struct {
 }
 
 func (svc *Service) CallLogin(param *UserLoginRequest) (*UserLoginResponse, error) {
-	gob.Register(rpcproto.UserLoginRequest{})
-	gob.Register(rpcproto.UserLoginResponse{})
 	var callLogin func(rpcproto.UserLoginRequest) (rpcproto.UserLoginResponse, error)
 	svc.rpcClient.Call("Login", &callLogin)
 
@@ -62,8 +61,6 @@ func (svc *Service) CallLogin(param *UserLoginRequest) (*UserLoginResponse, erro
 }
 
 func (svc *Service) CallRegister(param *UserRegisterRequest) (*UserRegisterResponse, error) {
-	gob.Register(rpcproto.UserRegisterRequest{})
-	gob.Register(rpcproto.UserRegisterResponse{})
 	var callRegister func(rpcproto.UserRegisterRequest) (rpcproto.UserRegisterResponse, error)
 	svc.rpcClient.Call("Register", &callRegister)
 
@@ -80,8 +77,6 @@ func (svc *Service) CallRegister(param *UserRegisterRequest) (*UserRegisterRespo
 }
 
 func (svc *Service) CallEditUser(param *UserEditRequest) (*UserEditResponse, error) {
-	gob.Register(rpcproto.UserEditRequest{})
-	gob.Register(rpcproto.UserEditResponse{})
 	var callEdit func(rpcproto.UserEditRequest) (rpcproto.UserEditResponse, error)
 	svc.rpcClient.Call("EditUser", &callEdit)
 
@@ -98,8 +93,6 @@ func (svc *Service) CallEditUser(param *UserEditRequest) (*UserEditResponse, err
 }
 
 func (svc *Service) CallGetUser(param *UserGetRequest) (*UserGetResponse, error) {
-	gob.Register(rpcproto.UserGetRequest{})
-	gob.Register(rpcproto.UserGetResponse{})
 	var callGet func(rpcproto.UserGetRequest) (rpcproto.UserGetResponse, error)
 	svc.rpcClient.Call("GetUser", &callGet)
 
@@ -115,4 +108,13 @@ func (svc *Service) CallGetUser(param *UserGetRequest) (*UserGetResponse, error)
 		getResp.Nickname,
 		getResp.ProfilePic,
 	}, nil
+}
+
+func (svc *Service) UserAuth(sessionID string) (string, error) {
+	username, err := svc.cache.Cache.Get(constant.SessionIDCachePrefix + sessionID)
+
+	if err != nil || username == nil {
+		return "", errors.New("svc.UserAuth failed")
+	}
+	return string(username), nil
 }
