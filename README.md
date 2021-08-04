@@ -39,43 +39,34 @@ curl --location --request GET 'http://{your_http_host}/api/ping' # {"message":"p
 ```
 ├── LICENSE
 ├── README.md
-├── cmd
-│    ├── grpc-server                        // 
-│    └── http-server                        // 
-│        └── main.go                        // HTTP Server entry point
-├── configs                                 // 
-│    └── config.yaml                        // 
-├── global                                  // 
-│    ├── cache.go                           // 
-│    ├── db.go                              // 
-│    └── setting.go                         // 
-├── go.mod                                  // 
-├── go.sum                                  // 
-├── internal                                // Service Codes
-│    ├── constant                           // 
-│    ├── dao                                // Data Access Object Layer
-│    ├── error                              // 
-│    ├── models                             // 
-│    │    ├── model.go                      // 
-│    │    └── user.go                       // 
-│    ├── routers                            // 
-│    │    ├── api                           // Controller Layer for input params handling
-│    │    │    ├── ping.go                  // 
-│    │    │    ├── upload.go                // 
-│    │    │    └── user.go                  // 
-│    │    └── router.go                     // 
-│    └── service                            // Service Logic Layer
-│        ├── service.go                     // 
-│        ├── upload.go                      // 
-│        └── user.go                        // 
-├── log                                     // 
-├── pkg                                     // Public utils
-│    ├── hashing                            // 
-│    ├── logger                             // 
-│    ├── middleware                         // 
-│    ├── resp                               // 
-│    ├── setting                            // 
-│    └── upload                             // 
-├── scripts                                 // Scripts for initialization 
-└── upload                                  // User upload contents
+├── cmd                                     # 
+│    ├── grpc-server                        # 
+│    │    └── main.go                       # RPC Server entry point
+│    ├── http-server                        # 
+│    │    └── main.go                       # HTTP Server entry point
+│    └── rpc-server                         # 
+│        └── main.go                        # RPC Server with TinyPRC, deprecated
+├── configs                                 # 
+│    └── config.yaml.default                # Config Template
+├── global                                  # 
+├── go.mod                                  # 
+├── go.sum                                  # 
+├── internal                                # Service Codes
+│    ├── constant                           # 
+│    ├── dao                                # DAO Layer
+│    ├── error                              # 
+│    ├── grpc-service                       # Service Layer for gRPC service
+│    ├── models                             # Models and DAO methods
+│    ├── routers                            # 
+│    │    ├── api                           # Controller Layer
+│    │    └── router.go                     # Router for HTTP service
+│    ├── rpc-service                        # Service Layer for gRPC service, deprecated
+│    └── service                            # Service Layer for HTTP service
+├── log                                     # 
+├── pkg                                     # Public utils
+├── proto                                   # 
+│    ├── grpc-proto                         # proto for gRPC service
+│    └── rpc-proto                          # proto for RPC service, deprecated
+├── scripts                                 # Init & Test scripts 
+└── upload                                  # 
 ```
