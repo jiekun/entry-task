@@ -23,8 +23,8 @@ type RegisterUserRequest struct {
 
 type EditUserRequest struct {
 	SessionID  string `form:"session_id"`
-	Nickname   string `form:"nickname" binding:"required,min=6,max=64"`
-	ProfilePic string `form:"profile_pic" binding:"-"`
+	Nickname   string `form:"nickname" binding:"min=6,max=64"`
+	ProfilePic string `form:"profile_pic" binding:"max=1024"`
 }
 
 type GetUserRequest struct {

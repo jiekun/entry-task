@@ -77,7 +77,7 @@ func (u User) Edit(c *gin.Context) {
 	editResponse, err := svc.CallEditUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Edit errs: %v", err)
-		response.ToErrorResponse(errcode.ErrorUserRegister)
+		response.ToErrorResponse(errcode.ErrorUserEdit)
 		return
 	}
 	response.ToResponse("Edit Succeed.", editResponse)
