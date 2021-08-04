@@ -41,15 +41,18 @@ func (e *Error) GetDetails() []string {
 }
 
 func (e *Error) StatusCode() int {
-	switch e.GetCode() {
-	case Success.GetCode():
+	switch c := e.GetCode(); {
+	case c == Success.GetCode():
 		return http.StatusOK
-	case ServerError.GetCode():
+	case c == ServerError.GetCode():
 		return http.StatusInternalServerError
-	case InvalidParams.GetCode():
+	case c == InvalidParams.GetCode():
 		return http.StatusBadRequest
-	case NotFound.GetCode():
+	case c == NotFound.GetCode():
 		return http.StatusNotFound
+	case c >= 20000000:
+		// Business Error will be represented by retcode, not HTTP status code
+		return http.StatusOK
 	}
 	return http.StatusInternalServerError
 }
