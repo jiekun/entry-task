@@ -20,7 +20,7 @@ func NewUser() User {
 
 func (u User) Login(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.UserLoginRequest{}
+	param := service.LoginRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Login errs: %v", err)
@@ -41,7 +41,7 @@ func (u User) Login(c *gin.Context) {
 
 func (u User) Register(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.UserRegisterRequest{}
+	param := service.RegisterUserRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Register errs: %v", err)
@@ -61,7 +61,7 @@ func (u User) Register(c *gin.Context) {
 
 func (u User) Edit(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.UserEditRequest{}
+	param := service.EditUserRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Edit errs: %v", err)
@@ -86,7 +86,7 @@ func (u User) Edit(c *gin.Context) {
 
 func (u User) Get(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.UserGetRequest{}
+	param := service.GetUserRequest{}
 
 	// Get sessionID set by Auth middleware
 	sessionID, _ := c.Get("sessionID")

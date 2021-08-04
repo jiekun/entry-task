@@ -9,43 +9,43 @@ import (
 	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
 )
 
-type UserLoginRequest struct {
-	Username string `form:"username" binding:"required,min=2,max=255"`
-	Password string `form:"password" binding:"required,min=2,max=255"`
+type LoginRequest struct {
+	Username string `form:"username" binding:"required,min=6,max=64"`
+	Password string `form:"password" binding:"required,min=6,max=64"`
 }
 
-type UserRegisterRequest struct {
-	Username   string `form:"username" binding:"required,min=2,max=255"`
-	Password   string `form:"password" binding:"required,min=2,max=255"`
-	Nickname   string `form:"nickname" binding:"required,min=2,max=255"`
+type RegisterUserRequest struct {
+	Username   string `form:"username" binding:"required,min=6,max=64"`
+	Password   string `form:"password" binding:"required,min=6,max=64"`
+	Nickname   string `form:"nickname" binding:"required,min=6,max=64"`
 	ProfilePic string `form:"profile_pic" binding:"-"` // Skip validation.
 }
 
-type UserEditRequest struct {
+type EditUserRequest struct {
 	SessionID  string `form:"session_id"`
-	Nickname   string `form:"nickname"`
-	ProfilePic string `form:"profile_pic"`
+	Nickname   string `form:"nickname" binding:"required,min=6,max=64"`
+	ProfilePic string `form:"profile_pic" binding:"-"`
 }
 
-type UserGetRequest struct {
+type GetUserRequest struct {
 	SessionID string `form:"session_id"`
 }
 
-type UserLoginResponse struct {
+type LoginResponse struct {
 	SessionID string `json:"session_id"`
 }
 
-type UserRegisterResponse struct{}
+type RegisterUserResponse struct{}
 
-type UserEditResponse struct{}
+type EditUserResponse struct{}
 
-type UserGetResponse struct {
+type GetUserResponse struct {
 	Username   string `json:"username"`
 	Nickname   string `json:"nickname"`
 	ProfilePic string `json:"profile_pic"`
 }
 
-func (svc *Service) CallLogin(param *UserLoginRequest) (*UserLoginResponse, error) {
+func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
 	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
 	resp, err := userServiceClient.Login(svc.ctx, &pb.LoginRequest{
 		Username: param.Username,
@@ -54,10 +54,10 @@ func (svc *Service) CallLogin(param *UserLoginRequest) (*UserLoginResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	return &UserLoginResponse{SessionID: resp.SessionId}, nil
+	return &LoginResponse{SessionID: resp.SessionId}, nil
 }
 
-func (svc *Service) CallRegister(param *UserRegisterRequest) (*UserRegisterResponse, error) {
+func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserResponse, error) {
 	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
 	_, err := userServiceClient.Register(svc.ctx, &pb.RegisterRequest{
 		Username:   param.Username,
@@ -68,10 +68,10 @@ func (svc *Service) CallRegister(param *UserRegisterRequest) (*UserRegisterRespo
 	if err != nil {
 		return nil, err
 	}
-	return &UserRegisterResponse{}, nil
+	return &RegisterUserResponse{}, nil
 }
 
-func (svc *Service) CallEditUser(param *UserEditRequest) (*UserEditResponse, error) {
+func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, error) {
 	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
 	_, err := userServiceClient.EditUser(svc.ctx, &pb.EditUserRequest{
 		SessionId:  param.SessionID,
@@ -81,10 +81,10 @@ func (svc *Service) CallEditUser(param *UserEditRequest) (*UserEditResponse, err
 	if err != nil {
 		return nil, err
 	}
-	return &UserEditResponse{}, nil
+	return &EditUserResponse{}, nil
 }
 
-func (svc *Service) CallGetUser(param *UserGetRequest) (*UserGetResponse, error) {
+func (svc *Service) CallGetUser(param *GetUserRequest) (*GetUserResponse, error) {
 	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
 	resp, err := userServiceClient.GetUser(svc.ctx, &pb.GetUserRequest{
 		SessionId: param.SessionID,
@@ -92,7 +92,7 @@ func (svc *Service) CallGetUser(param *UserGetRequest) (*UserGetResponse, error)
 	if err != nil {
 		return nil, err
 	}
-	return &UserGetResponse{
+	return &GetUserResponse{
 		Username:   resp.Username,
 		Nickname:   resp.Nickname,
 		ProfilePic: resp.ProfilePic,
