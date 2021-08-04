@@ -3,13 +3,10 @@ module github.com/2014bduck/entry-task
 go 1.15
 
 require (
-	github.com/allegro/bigcache/v2 v2.2.5 // indirect
-	github.com/allegro/bigcache/v3 v3.0.0
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-playground/validator/v10 v10.6.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.1
 	github.com/golang/protobuf v1.5.2
-	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
