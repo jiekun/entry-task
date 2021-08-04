@@ -26,4 +26,4 @@ upload/files/*
 !upload/files/.gitkeep
 
 # Configs
-config/config.yaml
+configs/config.yaml
