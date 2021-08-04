@@ -10,7 +10,7 @@ You could find following guidance on [Entry Task System Design Document](https:/
 - Benchmark Result
 
 ## Setup
-Before getting start, you need **MySQL** and **Redis** installed on your machine. And please refer `go.mod` for the Go packages used in this project.`init.sql` in script folder can help to initialize database & table we need.
+Before getting start, you need **MySQL** and **Redis** installed on your machine. And please refer `go.mod` for the Go packages used in this project. `init.sql` in script folder can help to initialize database & table we need.
 
 Following commands will help you set up the project and run it locally:
 ```bash
