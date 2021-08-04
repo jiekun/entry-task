@@ -13,6 +13,7 @@ import (
 	rpcproto "github.com/2014bduck/entry-task/proto/rpc-proto"
 	"github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 func (svc *Service) UserLogin(param rpcproto.UserLoginRequest) (*rpcproto.UserLoginResponse, error) {
@@ -33,7 +34,7 @@ func (svc *Service) UserLogin(param rpcproto.UserLoginRequest) (*rpcproto.UserLo
 	// Validation success
 	// Setting session cache
 	sessionID := uuid.NewV4()
-	err = svc.cache.Cache.Set(svc.ctx, constant.SessionIDCachePrefix+sessionID.String(), []byte(param.Username), 0).Err()
+	err = svc.cache.Cache.Set(svc.ctx, constant.SessionIDCachePrefix+sessionID.String(), []byte(param.Username), 3600 * 24 * time.Second).Err()
 
 	if err != nil {
 		return &rpcproto.UserLoginResponse{}, err
@@ -120,7 +121,7 @@ func (svc *Service) UserGet(param rpcproto.UserGetRequest) (*rpcproto.UserGetRes
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 0).Err() // Omit error
+	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 3600 * 24 * time.Second).Err() // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}

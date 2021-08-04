@@ -15,6 +15,7 @@ import (
 	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserService struct {
@@ -141,7 +142,7 @@ func (svc UserService) GetUser(ctx context.Context, r *pb.GetUserRequest) (*pb.G
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 0).Err() // Omit error
+	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 3600 * 24 * time.Second).Err() // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}
@@ -165,7 +166,7 @@ func (svc UserService) UpdateUserCache(username string) error {
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 0).Err() // Omit error
+	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 3600 * 24 * time.Second).Err() // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}
