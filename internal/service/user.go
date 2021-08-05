@@ -6,6 +6,8 @@ package service
 import (
 	"errors"
 	"github.com/2014bduck/entry-task/internal/constant"
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
+	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
 	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
 )
 
@@ -46,8 +48,10 @@ type GetUserResponse struct {
 }
 
 func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
-	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
-	resp, err := userServiceClient.Login(svc.ctx, &pb.LoginRequest{
+	RPCLogin := erpc_proto.Login
+	c := erpc.NewClient(svc.rpcClient)
+	c.Call("Login", &RPCLogin)
+	resp, err := RPCLogin(&erpc_proto.LoginRequest{
 		Username: param.Username,
 		Password: param.Password,
 	})
@@ -58,8 +62,10 @@ func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
 }
 
 func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserResponse, error) {
-	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
-	_, err := userServiceClient.Register(svc.ctx, &pb.RegisterRequest{
+	RPCRegister := erpc_proto.Register
+	c := erpc.NewClient(svc.rpcClient)
+	c.Call("Register", &RPCRegister)
+	_, err := RPCRegister(&erpc_proto.RegisterRequest{
 		Username:   param.Username,
 		Password:   param.Password,
 		Nickname:   param.Nickname,
@@ -72,8 +78,10 @@ func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserRespo
 }
 
 func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, error) {
-	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
-	_, err := userServiceClient.EditUser(svc.ctx, &pb.EditUserRequest{
+	RPCEditUser := erpc_proto.EditUser
+	c := erpc.NewClient(svc.rpcClient)
+	c.Call("EditUser", &RPCEditUser)
+	_, err := RPCEditUser(&erpc_proto.EditUserRequest{
 		SessionId:  param.SessionID,
 		Nickname:   param.Nickname,
 		ProfilePic: param.ProfilePic,
@@ -85,7 +93,63 @@ func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, err
 }
 
 func (svc *Service) CallGetUser(param *GetUserRequest) (*GetUserResponse, error) {
-	userServiceClient := pb.NewUserServiceClient(svc.rpcClient)
+	RPCGetUser := erpc_proto.GetUser
+	c := erpc.NewClient(svc.rpcClient)
+	c.Call("EditUser", &RPCGetUser)
+	resp, err := RPCGetUser(&erpc_proto.GetUserRequest{
+		SessionId: param.SessionID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &GetUserResponse{
+		Username:   resp.Username,
+		Nickname:   resp.Nickname,
+		ProfilePic: resp.ProfilePic,
+	}, nil
+}
+
+func (svc *Service) CallLoginGRpc(param *LoginRequest) (*LoginResponse, error) {
+	userServiceClient := pb.NewUserServiceClient(svc.gRpcClient)
+	resp, err := userServiceClient.Login(svc.ctx, &pb.LoginRequest{
+		Username: param.Username,
+		Password: param.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &LoginResponse{SessionID: resp.SessionId}, nil
+}
+
+func (svc *Service) CallRegisteGRpc(param *RegisterUserRequest) (*RegisterUserResponse, error) {
+	userServiceClient := pb.NewUserServiceClient(svc.gRpcClient)
+	_, err := userServiceClient.Register(svc.ctx, &pb.RegisterRequest{
+		Username:   param.Username,
+		Password:   param.Password,
+		Nickname:   param.Nickname,
+		ProfilePic: param.ProfilePic,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &RegisterUserResponse{}, nil
+}
+
+func (svc *Service) CallEditUserGRpc(param *EditUserRequest) (*EditUserResponse, error) {
+	userServiceClient := pb.NewUserServiceClient(svc.gRpcClient)
+	_, err := userServiceClient.EditUser(svc.ctx, &pb.EditUserRequest{
+		SessionId:  param.SessionID,
+		Nickname:   param.Nickname,
+		ProfilePic: param.ProfilePic,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &EditUserResponse{}, nil
+}
+
+func (svc *Service) CallGetUserGRpc(param *GetUserRequest) (*GetUserResponse, error) {
+	userServiceClient := pb.NewUserServiceClient(svc.gRpcClient)
 	resp, err := userServiceClient.GetUser(svc.ctx, &pb.GetUserRequest{
 		SessionId: param.SessionID,
 	})

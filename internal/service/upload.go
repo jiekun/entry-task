@@ -35,7 +35,7 @@ func (svc *Service) UploadFile(fileType int, file multipart.File, fileHeader *mu
 	}
 
 	// Transfer []byte via RPC
-	userServiceClient := pb.NewUploadServiceClient(svc.rpcClient)
+	userServiceClient := pb.NewUploadServiceClient(svc.gRpcClient)
 	resp, err := userServiceClient.UploadFile(svc.ctx, &pb.UploadRequest{
 		FileType: uint32(fileType),
 		FileName:   fileHeader.Filename,

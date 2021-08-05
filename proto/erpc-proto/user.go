@@ -3,12 +3,12 @@
 
 package erpc_proto
 
-type UserService interface {
-	Login(*LoginRequest) (*LoginReply, error)
-	Register(*RegisterRequest) (*RegisterReply, error)
-	GetUser(*GetUserRequest) (*GetUserReply, error)
-	EditUser(*EditUserRequest) (*EditUserReply, error)
-}
+var (
+	Login    func(*LoginRequest) (*LoginReply, error)
+	Register func(*RegisterRequest) (*RegisterReply, error)
+	GetUser  func(*GetUserRequest) (*GetUserReply, error)
+	EditUser func(*EditUserRequest) (*EditUserReply, error)
+)
 
 type LoginRequest struct {
 	Username string
@@ -16,9 +16,9 @@ type LoginRequest struct {
 }
 
 type RegisterRequest struct {
-	Username  string
-	Password  string
-	Nickname  string
+	Username   string
+	Password   string
+	Nickname   string
 	ProfilePic string
 }
 type EditUserRequest struct {
