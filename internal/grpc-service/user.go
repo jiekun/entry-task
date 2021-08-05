@@ -34,6 +34,10 @@ func NewUserService(ctx context.Context) UserService {
 }
 
 func (svc UserService) Login(ctx context.Context, r *pb.LoginRequest) (*pb.LoginReply, error) {
+	// Implement distributed lock with Redis if necessary
+	// Key, Value := xxx, xxx
+	// if Redis.SetNX(Key, Value, ttl){ Do Business Logic }
+
 	// Find user
 	user, err := svc.dao.GetUserByName(r.Username)
 	if err != nil {
