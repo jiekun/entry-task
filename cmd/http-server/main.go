@@ -175,6 +175,7 @@ func setupRPCClient() error {
 	}
 	global.RPCClient = erpc.NewClient(conn)
 	service.RegisterUserServiceProto()
+	service.RegisterUploadServiceProto()
 	return nil
 }
 

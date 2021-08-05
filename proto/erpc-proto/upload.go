@@ -3,8 +3,12 @@
 
 package erpc_proto
 
+var (
+	UploadFile func(UploadRequest) (UploadReply, error)
+)
+
 type UploadService interface {
-	UploadFile(*UploadRequest) (*UploadReply, error)
+	UploadFile(UploadRequest) (*UploadReply, error)
 }
 
 type UploadRequest struct {

@@ -106,7 +106,7 @@ func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, err
 func (svc *Service) CallGetUser(param *GetUserRequest) (*GetUserResponse, error) {
 	RPCGetUser := erpc_proto.GetUser
 	c := svc.eRpcClient
-	c.Call("EditUser", &RPCGetUser)
+	c.Call("GetUser", &RPCGetUser)
 	resp, err := RPCGetUser(erpc_proto.GetUserRequest{
 		SessionId: param.SessionID,
 	})

@@ -9,8 +9,9 @@ import (
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/constant"
 	"github.com/2014bduck/entry-task/internal/dao"
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"github.com/2014bduck/entry-task/pkg/upload"
-	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
+	proto "github.com/2014bduck/entry-task/proto/erpc-proto"
 	"os"
 )
 
@@ -28,25 +29,29 @@ func NewUploadService(ctx context.Context) UploadService {
 	return svc
 }
 
-func (svc UploadService) UploadFile(r *erpc_proto.UploadRequest) (*erpc_proto.UploadReply, error) {
+func (svc UploadService) RegisterUploadService(s *erpc.Server) {
+	s.Register("UploadFile", svc.UploadFile, proto.UploadRequest{}, proto.UploadReply{})
+}
+
+func (svc UploadService) UploadFile(r proto.UploadRequest) (*proto.UploadReply, error) {
 	fileName := upload.GetFileName(r.FileName) // MD5'd
 	uploadSavePath := upload.GetSavePath()
 	dst := uploadSavePath + "/" + fileName
 
 	if upload.CheckSavePath(uploadSavePath) {
 		if err := upload.CreateSavePath(dst, os.ModePerm); err != nil {
-			return nil, errors.New("svc.UploadFile: failed to create save directory")
+			return &proto.UploadReply{}, errors.New("svc.UploadFile: failed to create save directory")
 		}
 	}
 
 	if upload.CheckPermission(uploadSavePath) {
-		return nil, errors.New("svc.UploadFile: insufficient file permissions")
+		return &proto.UploadReply{}, errors.New("svc.UploadFile: insufficient file permissions")
 	}
 	if err := upload.SaveFileByte(&r.Content, dst); err != nil {
-		return nil, err
+		return &proto.UploadReply{}, err
 	}
 	fileUrl := global.AppSetting.UploadServerUrl + "/" + fileName
-	return &erpc_proto.UploadReply{FileUrl: fileUrl, FileName: fileName}, nil
+	return &proto.UploadReply{FileUrl: fileUrl, FileName: fileName}, nil
 
 }
 

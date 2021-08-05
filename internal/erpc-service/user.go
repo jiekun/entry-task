@@ -48,7 +48,7 @@ func (svc UserService) Login(r proto.LoginRequest) (*proto.LoginReply, error) {
 	// Find user
 	user, err := svc.dao.GetUserByName(r.Username)
 	if err != nil {
-		return nil, err
+		return &proto.LoginReply{}, err
 	}
 
 	// Invalid cases
@@ -65,16 +65,16 @@ func (svc UserService) Login(r proto.LoginRequest) (*proto.LoginReply, error) {
 	err = svc.cache.Cache.Set(svc.ctx, constant.SessionIDCachePrefix+sessionID.String(), []byte(r.Username), 0).Err()
 
 	if err != nil {
-		return nil, err
+		return &proto.LoginReply{}, err
 	}
 	return &proto.LoginReply{SessionId: sessionID.String()}, nil
 }
 
-func (svc UserService) Register(r *proto.RegisterRequest) (*proto.RegisterReply, error) {
+func (svc UserService) Register(r proto.RegisterRequest) (*proto.RegisterReply, error) {
 	// Validate username if existed
 	_, err := svc.dao.GetUserByName(r.Username)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors.New("svc.UserRegister: username existed")
+		return &proto.RegisterReply{}, errors.New("svc.UserRegister: username existed")
 	}
 
 	// Add Salt to pass
@@ -83,23 +83,23 @@ func (svc UserService) Register(r *proto.RegisterRequest) (*proto.RegisterReply,
 	// Create User to DB
 	_, err = svc.dao.CreateUser(r.Username, hashedPass, r.Nickname, r.ProfilePic, uint8(constant.EnabledStatus))
 	if err != nil {
-		return nil, fmt.Errorf("svc.UserRegister: CreateUser error: %v", err)
+		return &proto.RegisterReply{}, fmt.Errorf("svc.UserRegister: CreateUser error: %v", err)
 	}
 
 	return &proto.RegisterReply{}, nil
 }
 
-func (svc UserService) EditUser(r *proto.EditUserRequest) (*proto.EditUserReply, error) {
+func (svc UserService) EditUser(r proto.EditUserRequest) (*proto.EditUserReply, error) {
 	// Get Username
 	username, err := svc.UserAuth(r.SessionId)
 	if err != nil {
-		return nil, err
+		return &proto.EditUserReply{}, err
 	}
 
 	// Query current user
 	user, err := svc.dao.GetUserByName(username)
 	if err != nil {
-		return nil, fmt.Errorf("svc.UserEdit: %v", err)
+		return &proto.EditUserReply{}, fmt.Errorf("svc.UserEdit: %v", err)
 	}
 
 	// Validate user status
@@ -110,7 +110,7 @@ func (svc UserService) EditUser(r *proto.EditUserRequest) (*proto.EditUserReply,
 	// Update user data
 	err = svc.dao.UpdateUser(user.ID, r.Nickname, r.ProfilePic)
 	if err != nil {
-		return nil, fmt.Errorf("svc.UserEdit: %v", err)
+		return &proto.EditUserReply{}, fmt.Errorf("svc.UserEdit: %v", err)
 	}
 
 	// Update Cache
@@ -119,11 +119,11 @@ func (svc UserService) EditUser(r *proto.EditUserRequest) (*proto.EditUserReply,
 	return &proto.EditUserReply{}, nil
 }
 
-func (svc UserService) GetUser(r *proto.GetUserRequest) (*proto.GetUserReply, error) {
+func (svc UserService) GetUser(r proto.GetUserRequest) (*proto.GetUserReply, error) {
 	// Get Username
 	username, err := svc.UserAuth(r.SessionId)
 	if err != nil {
-		return nil, err
+		return  &proto.GetUserReply{}, err
 	}
 
 	cacheKey := constant.UserProfileCachePrefix + username

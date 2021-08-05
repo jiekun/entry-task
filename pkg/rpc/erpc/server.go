@@ -67,6 +67,11 @@ func (s *Server) Run() {
 				// package response arguments (except error)
 				outArgs := make([]interface{}, len(out)-1)
 				for i := 0; i < len(out)-1; i++ {
+					//if out[i].IsNil(){
+					//	outArgs[i] = reflect.Zero(f.Type().Out(i))
+					//}else{
+					//	outArgs[i] = out[i].Interface()
+					//}
 					outArgs[i] = out[i].Interface()
 				}
 				// package error argument

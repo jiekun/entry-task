@@ -140,8 +140,12 @@ func setupLogger() error {
 func main() {
 	s := erpc.NewServer(":" + global.ServerSetting.RPCPort)
 	c := context.Background()
-	svc := service.NewUserService(c)
-	svc.RegisterUserService(s)
+
+	userSvc := service.NewUserService(c)
+	userSvc.RegisterUserService(s)
+	uploadSvc := service.NewUploadService(c)
+	uploadSvc.RegisterUploadService(s)
+
 	log.Printf("eRPC server listening: %v\n", global.ServerSetting.RPCPort)
 	s.Run()
 	quit := make(chan os.Signal)
