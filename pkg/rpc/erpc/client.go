@@ -18,7 +18,7 @@ func NewClient(conn net.Conn) *Client {
 }
 
 // Call receive RPC service's name and a function pointer,
-// prepare
+// bind RPC calling to this function.
 // See: https://golang.org/pkg/reflect/#example_MakeFunc
 func (c *Client) Call(serviceName string, funcPtr interface{}) {
 	// Get the Value of funcPtr
@@ -82,5 +82,4 @@ func (c *Client) Call(serviceName string, funcPtr interface{}) {
 	}
 	// Replace funcPtr's Value with f
 	v.Set(reflect.MakeFunc(v.Type(), f))
-
 }
