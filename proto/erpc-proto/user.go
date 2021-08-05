@@ -4,10 +4,10 @@
 package erpc_proto
 
 type UserService interface {
-	Login(LoginRequest) (LoginReply, error)
-	Register(RegisterRequest) (RegisterReply, error)
-	GetUser(GetUserRequest) (GetUserReply, error)
-	EditUser(EditUserRequest) (EditUserReply, error)
+	Login(*LoginRequest) (*LoginReply, error)
+	Register(*RegisterRequest) (*RegisterReply, error)
+	GetUser(*GetUserRequest) (*GetUserReply, error)
+	EditUser(*EditUserRequest) (*EditUserReply, error)
 }
 
 type LoginRequest struct {

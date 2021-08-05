@@ -11,7 +11,6 @@ import (
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/pkg/upload"
 	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
-	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
 	"os"
 )
 
@@ -19,7 +18,6 @@ type UploadService struct {
 	ctx   context.Context
 	dao   *dao.Dao
 	cache *dao.RedisCache
-	pb.UnimplementedUploadServiceServer
 }
 
 func NewUploadService(ctx context.Context) UploadService {
@@ -30,7 +28,7 @@ func NewUploadService(ctx context.Context) UploadService {
 	return svc
 }
 
-func (svc UploadService) UploadFile(ctx context.Context, r *erpc_proto.UploadRequest) (*erpc_proto.UploadReply, error) {
+func (svc UploadService) UploadFile(r *erpc_proto.UploadRequest) (*erpc_proto.UploadReply, error) {
 	fileName := upload.GetFileName(r.FileName) // MD5'd
 	uploadSavePath := upload.GetSavePath()
 	dst := uploadSavePath + "/" + fileName

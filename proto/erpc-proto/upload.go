@@ -4,7 +4,7 @@
 package erpc_proto
 
 type UploadService interface {
-	UploadFile(UploadRequest) (UploadReply, error)
+	UploadFile(*UploadRequest) (*UploadReply, error)
 }
 
 type UploadRequest struct {
