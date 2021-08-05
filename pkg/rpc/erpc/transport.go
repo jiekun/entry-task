@@ -4,8 +4,8 @@
 package erpc
 
 import (
+	"bufio"
 	"encoding/binary"
-	"io"
 	"net"
 )
 
@@ -48,7 +48,9 @@ func (t *Transport) Send(req Data) error {
 func (t *Transport) Receive() (Data, error) {
 	// Read the header from a connection
 	header := make([]byte, 4)
-	_, err := io.ReadFull(t.conn, header)
+	reader := bufio.NewReader(t.conn)
+	_, err := reader.Read(header)
+	//_, err := io.ReadFull(t.conn, header)
 	if err != nil {
 		return Data{}, err
 	}
@@ -59,7 +61,8 @@ func (t *Transport) Receive() (Data, error) {
 	// Read bodyLen size data from connection
 	// and decode to Data struct
 	byteData := make([]byte, bodyLen)
-	_, err = io.ReadFull(t.conn, byteData)
+	_, err = reader.Read(byteData)
+	//_, err = io.ReadFull(t.conn, byteData)
 	if err != nil {
 		return Data{}, nil
 	}
