@@ -5,18 +5,18 @@ package erpc_proto
 
 // Function signature for Client. Align with interface.
 var (
-	Login    func(*LoginRequest) (*LoginReply, error)
-	Register func(*RegisterRequest) (*RegisterReply, error)
-	GetUser  func(*GetUserRequest) (*GetUserReply, error)
-	EditUser func(*EditUserRequest) (*EditUserReply, error)
+	Login    func(LoginRequest) (LoginReply, error)
+	Register func(RegisterRequest) (RegisterReply, error)
+	GetUser  func(GetUserRequest) (GetUserReply, error)
+	EditUser func(EditUserRequest) (EditUserReply, error)
 )
 
 // Service interface for Server. Align with signature.
 type UserService interface {
-	Login(*LoginRequest) (*LoginReply, error)
-	Register(*RegisterRequest) (*RegisterReply, error)
-	GetUser(*GetUserRequest) (*GetUserReply, error)
-	EditUser(*EditUserRequest) (*EditUserReply, error)
+	Login(LoginRequest) (*LoginReply, error)
+	Register(RegisterRequest) (*RegisterReply, error)
+	GetUser(GetUserRequest) (*GetUserReply, error)
+	EditUser(EditUserRequest) (*EditUserReply, error)
 }
 
 type LoginRequest struct {

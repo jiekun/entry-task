@@ -4,6 +4,7 @@
 package service
 
 import (
+	"encoding/gob"
 	"errors"
 	"github.com/2014bduck/entry-task/internal/constant"
 	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
@@ -46,11 +47,22 @@ type GetUserResponse struct {
 	ProfilePic string `json:"profile_pic"`
 }
 
+func RegisterUserServiceProto() {
+	gob.Register(erpc_proto.LoginRequest{})
+	gob.Register(erpc_proto.LoginReply{})
+	gob.Register(erpc_proto.RegisterRequest{})
+	gob.Register(erpc_proto.RegisterReply{})
+	gob.Register(erpc_proto.EditUserRequest{})
+	gob.Register(erpc_proto.EditUserReply{})
+	gob.Register(erpc_proto.GetUserRequest{})
+	gob.Register(erpc_proto.GetUserReply{})
+}
+
 func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
 	RPCLogin := erpc_proto.Login
 	c := svc.eRpcClient
 	c.Call("Login", &RPCLogin)
-	resp, err := RPCLogin(&erpc_proto.LoginRequest{
+	resp, err := RPCLogin(erpc_proto.LoginRequest{
 		Username: param.Username,
 		Password: param.Password,
 	})
@@ -64,7 +76,7 @@ func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserRespo
 	RPCRegister := erpc_proto.Register
 	c := svc.eRpcClient
 	c.Call("Register", &RPCRegister)
-	_, err := RPCRegister(&erpc_proto.RegisterRequest{
+	_, err := RPCRegister(erpc_proto.RegisterRequest{
 		Username:   param.Username,
 		Password:   param.Password,
 		Nickname:   param.Nickname,
@@ -80,7 +92,7 @@ func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, err
 	RPCEditUser := erpc_proto.EditUser
 	c := svc.eRpcClient
 	c.Call("EditUser", &RPCEditUser)
-	_, err := RPCEditUser(&erpc_proto.EditUserRequest{
+	_, err := RPCEditUser(erpc_proto.EditUserRequest{
 		SessionId:  param.SessionID,
 		Nickname:   param.Nickname,
 		ProfilePic: param.ProfilePic,
@@ -95,7 +107,7 @@ func (svc *Service) CallGetUser(param *GetUserRequest) (*GetUserResponse, error)
 	RPCGetUser := erpc_proto.GetUser
 	c := svc.eRpcClient
 	c.Call("EditUser", &RPCGetUser)
-	resp, err := RPCGetUser(&erpc_proto.GetUserRequest{
+	resp, err := RPCGetUser(erpc_proto.GetUserRequest{
 		SessionId: param.SessionID,
 	})
 	if err != nil {

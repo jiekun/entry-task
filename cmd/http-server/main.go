@@ -7,6 +7,7 @@ import (
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/models"
 	"github.com/2014bduck/entry-task/internal/routers"
+	"github.com/2014bduck/entry-task/internal/service"
 	"github.com/2014bduck/entry-task/pkg/logger"
 	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"github.com/2014bduck/entry-task/pkg/rpc/grpc"
@@ -173,6 +174,7 @@ func setupRPCClient() error {
 		log.Fatalf("err: %v", err)
 	}
 	global.RPCClient = erpc.NewClient(conn)
+	service.RegisterUserServiceProto()
 	return nil
 }
 

@@ -26,7 +26,7 @@ func (c *Client) Call(serviceName string, funcPtr interface{}) {
 	v := reflect.ValueOf(funcPtr).Elem()
 	f := func(args []reflect.Value) []reflect.Value {
 		clientTrans := NewTransport(c.conn)
-		numOut := v.Type().NumField()
+		numOut := v.Type().NumOut()
 
 		// Output length is specified. Build an output
 		// when error happened with zero value.

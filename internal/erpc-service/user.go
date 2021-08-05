@@ -40,7 +40,7 @@ func (svc UserService) RegisterUserService(s *erpc.Server) {
 	s.Register("GetUser", svc.GetUser, proto.GetUserRequest{}, proto.GetUserReply{})
 }
 
-func (svc UserService) Login(r *proto.LoginRequest) (*proto.LoginReply, error) {
+func (svc UserService) Login(r proto.LoginRequest) (*proto.LoginReply, error) {
 	// Implement distributed lock with Redis if necessary
 	// Key, Value := xxx, xxx
 	// if Redis.SetNX(Key, Value, ttl){ Do Business Logic }
