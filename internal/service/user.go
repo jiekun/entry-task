@@ -6,7 +6,6 @@ package service
 import (
 	"errors"
 	"github.com/2014bduck/entry-task/internal/constant"
-	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
 	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
 )
@@ -49,7 +48,7 @@ type GetUserResponse struct {
 
 func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
 	RPCLogin := erpc_proto.Login
-	c := erpc.NewClient(svc.rpcClient)
+	c := svc.eRpcClient
 	c.Call("Login", &RPCLogin)
 	resp, err := RPCLogin(&erpc_proto.LoginRequest{
 		Username: param.Username,
@@ -63,7 +62,7 @@ func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
 
 func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserResponse, error) {
 	RPCRegister := erpc_proto.Register
-	c := erpc.NewClient(svc.rpcClient)
+	c := svc.eRpcClient
 	c.Call("Register", &RPCRegister)
 	_, err := RPCRegister(&erpc_proto.RegisterRequest{
 		Username:   param.Username,
@@ -79,7 +78,7 @@ func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserRespo
 
 func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, error) {
 	RPCEditUser := erpc_proto.EditUser
-	c := erpc.NewClient(svc.rpcClient)
+	c := svc.eRpcClient
 	c.Call("EditUser", &RPCEditUser)
 	_, err := RPCEditUser(&erpc_proto.EditUserRequest{
 		SessionId:  param.SessionID,
@@ -94,7 +93,7 @@ func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, err
 
 func (svc *Service) CallGetUser(param *GetUserRequest) (*GetUserResponse, error) {
 	RPCGetUser := erpc_proto.GetUser
-	c := erpc.NewClient(svc.rpcClient)
+	c := svc.eRpcClient
 	c.Call("EditUser", &RPCGetUser)
 	resp, err := RPCGetUser(&erpc_proto.GetUserRequest{
 		SessionId: param.SessionID,

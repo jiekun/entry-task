@@ -7,8 +7,8 @@ import (
 	"context"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/dao"
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"google.golang.org/grpc"
-	"net"
 )
 
 type Service struct {
@@ -16,7 +16,7 @@ type Service struct {
 	dao        *dao.Dao
 	cache      *dao.RedisCache
 	gRpcClient *grpc.ClientConn
-	rpcClient  net.Conn
+	eRpcClient *erpc.Client
 }
 
 func New(ctx context.Context) Service {
@@ -24,6 +24,7 @@ func New(ctx context.Context) Service {
 	svc.dao = dao.New(global.DBEngine)
 	svc.cache = dao.NewCache(global.CacheClient)
 	svc.gRpcClient = global.GRPCClient
+	svc.eRpcClient = global.RPCClient
 
 	return svc
 }

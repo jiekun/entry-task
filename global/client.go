@@ -4,9 +4,11 @@
 package global
 
 import (
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"google.golang.org/grpc"
 )
 
 var (
 	GRPCClient *grpc.ClientConn
+	RPCClient  *erpc.Client
 )

@@ -12,7 +12,8 @@ import (
 	"github.com/2014bduck/entry-task/internal/constant"
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/pkg/hashing"
-	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
+	proto "github.com/2014bduck/entry-task/proto/erpc-proto"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 	"time"
@@ -32,7 +33,14 @@ func NewUserService(ctx context.Context) UserService {
 	return svc
 }
 
-func (svc UserService) Login(r *erpc_proto.LoginRequest) (*erpc_proto.LoginReply, error) {
+func (svc UserService) RegisterUserService(s *erpc.Server) {
+	s.Register("Login", svc.Login, proto.LoginRequest{}, proto.LoginReply{})
+	s.Register("Register", svc.Register, proto.RegisterRequest{}, proto.RegisterReply{})
+	s.Register("EditUser", svc.EditUser, proto.EditUserRequest{}, proto.EditUserReply{})
+	s.Register("GetUser", svc.GetUser, proto.GetUserRequest{}, proto.GetUserReply{})
+}
+
+func (svc UserService) Login(r *proto.LoginRequest) (*proto.LoginReply, error) {
 	// Implement distributed lock with Redis if necessary
 	// Key, Value := xxx, xxx
 	// if Redis.SetNX(Key, Value, ttl){ Do Business Logic }
@@ -59,10 +67,10 @@ func (svc UserService) Login(r *erpc_proto.LoginRequest) (*erpc_proto.LoginReply
 	if err != nil {
 		return nil, err
 	}
-	return &erpc_proto.LoginReply{SessionId: sessionID.String()}, nil
+	return &proto.LoginReply{SessionId: sessionID.String()}, nil
 }
 
-func (svc UserService) Register(r *erpc_proto.RegisterRequest) (*erpc_proto.RegisterReply, error) {
+func (svc UserService) Register(r *proto.RegisterRequest) (*proto.RegisterReply, error) {
 	// Validate username if existed
 	_, err := svc.dao.GetUserByName(r.Username)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -78,10 +86,10 @@ func (svc UserService) Register(r *erpc_proto.RegisterRequest) (*erpc_proto.Regi
 		return nil, fmt.Errorf("svc.UserRegister: CreateUser error: %v", err)
 	}
 
-	return &erpc_proto.RegisterReply{}, nil
+	return &proto.RegisterReply{}, nil
 }
 
-func (svc UserService) EditUser(r *erpc_proto.EditUserRequest) (*erpc_proto.EditUserReply, error) {
+func (svc UserService) EditUser(r *proto.EditUserRequest) (*proto.EditUserReply, error) {
 	// Get Username
 	username, err := svc.UserAuth(r.SessionId)
 	if err != nil {
@@ -108,10 +116,10 @@ func (svc UserService) EditUser(r *erpc_proto.EditUserRequest) (*erpc_proto.Edit
 	// Update Cache
 	_ = svc.UpdateUserCache(username)
 
-	return &erpc_proto.EditUserReply{}, nil
+	return &proto.EditUserReply{}, nil
 }
 
-func (svc UserService) GetUser(r *erpc_proto.GetUserRequest) (*erpc_proto.GetUserReply, error) {
+func (svc UserService) GetUser(r *proto.GetUserRequest) (*proto.GetUserReply, error) {
 	// Get Username
 	username, err := svc.UserAuth(r.SessionId)
 	if err != nil {
@@ -123,7 +131,7 @@ func (svc UserService) GetUser(r *erpc_proto.GetUserRequest) (*erpc_proto.GetUse
 	// Try loading user info from cache
 	userProfCache, err := svc.cache.Cache.Get(svc.ctx, cacheKey).Result()
 	if err == nil {
-		userGetCacheResp := erpc_proto.GetUserReply{}
+		userGetCacheResp := proto.GetUserReply{}
 		err = json.Unmarshal([]byte(userProfCache), &userGetCacheResp)
 		if err != nil {
 			global.Logger.Errorf("svc.UserGet: Unmarshal cache failed: %v", err)
@@ -137,7 +145,7 @@ func (svc UserService) GetUser(r *erpc_proto.GetUserRequest) (*erpc_proto.GetUse
 	if err != nil {
 		return nil, fmt.Errorf("svc.UserGet: %v", err)
 	}
-	userGetResp := &erpc_proto.GetUserReply{
+	userGetResp := &proto.GetUserReply{
 		Username:   user.Name,
 		Nickname:   user.Nickname,
 		ProfilePic: user.ProfilePic,
@@ -161,7 +169,7 @@ func (svc UserService) UpdateUserCache(username string) error {
 	if err != nil {
 		return fmt.Errorf("svc.UserGet: %v", err)
 	}
-	userGetResp := &erpc_proto.GetUserReply{
+	userGetResp := &proto.GetUserReply{
 		Username:   user.Name,
 		Nickname:   user.Nickname,
 		ProfilePic: user.ProfilePic,

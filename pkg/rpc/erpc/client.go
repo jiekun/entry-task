@@ -25,7 +25,7 @@ func (c *Client) Call(serviceName string, funcPtr interface{}) {
 	// See: https://golang.org/pkg/reflect/#Value
 	v := reflect.ValueOf(funcPtr).Elem()
 	f := func(args []reflect.Value) []reflect.Value {
-		cliTransport := NewTransport(c.conn)
+		clientTrans := NewTransport(c.conn)
 		numOut := v.Type().NumField()
 
 		// Output length is specified. Build an output
@@ -45,7 +45,7 @@ func (c *Client) Call(serviceName string, funcPtr interface{}) {
 			// so that it can match Data.Args
 			sendArgs = append(sendArgs, args[i].Interface())
 		}
-		err := cliTransport.Send(Data{
+		err := clientTrans.Send(Data{
 			Name: serviceName,
 			Args: sendArgs,
 		})
@@ -53,7 +53,7 @@ func (c *Client) Call(serviceName string, funcPtr interface{}) {
 			return errorHandler(err)
 		}
 
-		respData, err := cliTransport.Receive()
+		respData, err := clientTrans.Receive()
 		if err != nil {
 			return errorHandler(err)
 		}
