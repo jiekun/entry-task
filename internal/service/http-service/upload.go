@@ -1,7 +1,7 @@
 // @Author: 2014BDuck
 // @Date: 2021/8/2
 
-package service
+package http_service
 
 import (
 	"encoding/gob"

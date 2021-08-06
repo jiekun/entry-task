@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/models"
-	"github.com/2014bduck/entry-task/internal/rpc-service"
+	"github.com/2014bduck/entry-task/internal/service/rpc-service"
 	"github.com/2014bduck/entry-task/pkg/logger"
 	"github.com/2014bduck/entry-task/pkg/rpc/tinyrpc"
 	"github.com/2014bduck/entry-task/pkg/setting"

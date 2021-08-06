@@ -6,7 +6,7 @@ package api
 import (
 	"github.com/2014bduck/entry-task/global"
 	errcode "github.com/2014bduck/entry-task/internal/error"
-	"github.com/2014bduck/entry-task/internal/service"
+	"github.com/2014bduck/entry-task/internal/service/http-service"
 	"github.com/2014bduck/entry-task/pkg/resp"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -32,7 +32,7 @@ func (Upload) Upload(c *gin.Context) {
 		return
 	}
 
-	svc := service.New(c.Request.Context())
+	svc := http_service.New(c.Request.Context())
 	uploadResp, err := svc.UploadFile(fileType, file, fileHeader)
 	if err != nil {
 		global.Logger.Errorf("app.Upload errs: %v", err)

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	errcode "github.com/2014bduck/entry-task/internal/error"
-	"github.com/2014bduck/entry-task/internal/service"
+	"github.com/2014bduck/entry-task/internal/service/http-service"
 	"github.com/2014bduck/entry-task/pkg/resp"
 	"github.com/gin-gonic/gin"
 )
@@ -20,14 +20,14 @@ func NewUser() User {
 
 func (u User) Login(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.LoginRequest{}
+	param := http_service.LoginRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Login errs: %v", err)
 		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}
-	svc := service.New(c.Request.Context())
+	svc := http_service.New(c.Request.Context())
 	loginResponse, err := svc.CallLogin(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Login errs: %v", err)
@@ -41,14 +41,14 @@ func (u User) Login(c *gin.Context) {
 
 func (u User) Register(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.RegisterUserRequest{}
+	param := http_service.RegisterUserRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Register errs: %v", err)
 		response.ToErrorResponse(errcode.InvalidParams)
 		return
 	}
-	svc := service.New(c.Request.Context())
+	svc := http_service.New(c.Request.Context())
 	loginResponse, err := svc.CallRegister(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Register errs: %v", err)
@@ -61,7 +61,7 @@ func (u User) Register(c *gin.Context) {
 
 func (u User) Edit(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.EditUserRequest{}
+	param := http_service.EditUserRequest{}
 	err := c.ShouldBind(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Edit errs: %v", err)
@@ -73,7 +73,7 @@ func (u User) Edit(c *gin.Context) {
 	sessionID, _ := c.Get("sessionID")
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 
-	svc := service.New(c.Request.Context())
+	svc := http_service.New(c.Request.Context())
 	editResponse, err := svc.CallEditUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Edit errs: %v", err)
@@ -86,13 +86,13 @@ func (u User) Edit(c *gin.Context) {
 
 func (u User) Get(c *gin.Context) {
 	response := resp.NewResponse(c)
-	param := service.GetUserRequest{}
+	param := http_service.GetUserRequest{}
 
 	// Get sessionID set by Auth middleware
 	sessionID, _ := c.Get("sessionID")
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 
-	svc := service.New(c.Request.Context())
+	svc := http_service.New(c.Request.Context())
 	getResponse, err := svc.CallGetUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Get errs: %v", err)

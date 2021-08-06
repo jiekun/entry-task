@@ -5,7 +5,7 @@ package middleware
 
 import (
 	errcode "github.com/2014bduck/entry-task/internal/error"
-	"github.com/2014bduck/entry-task/internal/service"
+	"github.com/2014bduck/entry-task/internal/service/http-service"
 	"github.com/2014bduck/entry-task/pkg/resp"
 	"github.com/gin-gonic/gin"
 )
@@ -27,7 +27,7 @@ func SessionRequired(c *gin.Context) {
 func LoginRequired(c *gin.Context) {
 	response := resp.NewResponse(c)
 	sessionID, err := c.Cookie("session_id")
-	svc := service.New(c.Request.Context())
+	svc := http_service.New(c.Request.Context())
 	username, err := svc.UserAuth(sessionID)
 	if err != nil {
 		// Abort the request with the appropriate error code
