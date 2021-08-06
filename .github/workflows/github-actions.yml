@@ -21,5 +21,6 @@ jobs:
       - run: echo "Code format check begin..."
       - run: go vet ./...
       - run: echo "Unit test begin..."
-      - run: go test -covermode=atomic -gcflags=all=-l ./...
+      - run: go test -cover -covermode=atomic -gcflags=all=-l ./... -coverprofile=profile.cov
+      - run: go tool cover -func profile.cov
       - run: echo "🍏 This job's status is ${{ job.status }}."

@@ -1,3 +1,6 @@
+[![Pipeline](https://git.garena.com/jiekun.zhu/golang-entry-task/badges/master/pipeline.svg)](https://git.garena.com/jiekun.zhu/golang-entry-task/-/commits/master)
+[![Coverage](https://git.garena.com/jiekun.zhu/golang-entry-task/badges/master/coverage.svg)](https://git.garena.com/jiekun.zhu/golang-entry-task/-/commits/master)
+
 # Entry Task
 ## Introduction
 `entry-task` is a web service based on **Gin** framework. It provides basic user management feature.

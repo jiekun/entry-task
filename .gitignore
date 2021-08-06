@@ -27,3 +27,6 @@ upload/files/*
 
 # Configs
 configs/config.yaml
+
+# Coverage
+profile.cov
