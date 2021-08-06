@@ -47,6 +47,7 @@ type CacheSettingS struct {
 
 type ClientSettingS struct {
 	RPCHost string
+	ConnNum int
 }
 
 type EmailSettingS struct {

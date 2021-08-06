@@ -200,7 +200,7 @@ func (svc *Service) UserAuth(sessionID string) (string, error) {
 
 func (svc *Service) getConn() (*erpc.Client, error) {
 	if global.RPCClientPool == nil {
-		cp, err := erpc.NewConnectionPool(global.ClientSetting.RPCHost, 10)
+		cp, err := erpc.NewConnectionPool(global.ClientSetting.RPCHost, global.ClientSetting.ConnNum)
 		if err != nil {
 			return nil, err
 		}

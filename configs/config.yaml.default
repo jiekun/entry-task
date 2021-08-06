@@ -1,7 +1,7 @@
 Server:
   RunMode: debug
   HttpPort: 8001
-  RPCPort: 8002
+  RPCPort: 8003
   ReadTimeout: 60
   WriteTimeout: 60
 App:
@@ -33,4 +33,5 @@ Redis:
   Host: localhost:6379
   DBIndex: 0
 Client:
-  RPCHost: 127.0.0.1:8002
+  RPCHost: 127.0.0.1:8003
+  connNum: 30
