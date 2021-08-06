@@ -17,6 +17,7 @@ type ConnectionPool struct {
 }
 
 func NewConnectionPool(addr string, connNum int) (*ConnectionPool, error) {
+	// Build connNum length ptr slice to store connection and mutex
 	connections := make([]*net.Conn, connNum)
 	locks := make([]*sync.Mutex, connNum)
 	for i := 0; i < connNum; i++ {
@@ -32,8 +33,10 @@ func NewConnectionPool(addr string, connNum int) (*ConnectionPool, error) {
 }
 
 func (cp *ConnectionPool) Get() (*net.Conn, *sync.Mutex, error) {
+	// if-else idx++ operation is not atomic. Mutex needed.
 	cp.lock.Lock()
 	defer cp.lock.Unlock()
+
 	// Round Robin
 	if cp.lastIdx < cp.size-1 {
 		cp.lastIdx++
