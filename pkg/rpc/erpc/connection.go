@@ -41,5 +41,4 @@ func (cp *ConnectionPool) Get() (*net.Conn, *sync.Mutex, error) {
 		cp.lastIdx = 0
 	}
 	return cp.connections[cp.lastIdx], cp.locks[cp.lastIdx], nil
-
 }

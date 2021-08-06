@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"reflect"
+	"runtime/debug"
 	"sync"
 )
 
@@ -37,7 +38,13 @@ func (s *Server) Run() {
 
 		go func() {
 			srvTransport := NewTransport(conn, &sync.Mutex{})
-
+			defer func() {
+				if e := recover(); e != nil {
+					//_ = conn.Close()
+					recoveryLog := "recovery log:  message: %v, stack: %s"
+					log.Printf(recoveryLog, e, string(debug.Stack()[:]))
+				}
+			}()
 			for {
 				// read request from client
 				req, err := srvTransport.Receive()
