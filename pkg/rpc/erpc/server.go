@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"reflect"
+	"sync"
 )
 
 type Server struct {
@@ -35,7 +36,7 @@ func (s *Server) Run() {
 		}
 
 		go func() {
-			srvTransport := NewTransport(conn)
+			srvTransport := NewTransport(conn, &sync.Mutex{})
 
 			for {
 				// read request from client

@@ -9,6 +9,6 @@ import (
 )
 
 var (
-	GRPCClient *grpc.ClientConn
-	RPCClient  *erpc.Client
+	GRPCClient    *grpc.ClientConn
+	RPCClientPool *erpc.ConnectionPool
 )

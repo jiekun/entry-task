@@ -9,12 +9,10 @@ import (
 	"github.com/2014bduck/entry-task/internal/routers"
 	"github.com/2014bduck/entry-task/internal/service"
 	"github.com/2014bduck/entry-task/pkg/logger"
-	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"github.com/2014bduck/entry-task/pkg/rpc/grpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -169,11 +167,7 @@ func setupRPCClient() error {
 	}
 	global.GRPCClient = clientConn
 
-	conn, err := net.Dial("tcp", global.ClientSetting.RPCHost)
-	if err != nil {
-		log.Fatalf("err: %v", err)
-	}
-	global.RPCClient = erpc.NewClient(conn)
+	// Lazy connect
 	service.RegisterUserServiceProto()
 	service.RegisterUploadServiceProto()
 	return nil

@@ -7,14 +7,16 @@ import (
 	"errors"
 	"net"
 	"reflect"
+	"sync"
 )
 
 type Client struct {
-	conn net.Conn
+	Conn net.Conn
+	Lock *sync.Mutex
 }
 
-func NewClient(conn net.Conn) *Client {
-	return &Client{conn}
+func NewClient(conn net.Conn, lock *sync.Mutex) *Client {
+	return &Client{conn, lock}
 }
 
 // Call receive RPC service's name and a function pointer,
@@ -25,11 +27,10 @@ func (c *Client) Call(serviceName string, funcPtr interface{}) {
 	// See: https://golang.org/pkg/reflect/#Value
 	v := reflect.ValueOf(funcPtr).Elem()
 	f := func(args []reflect.Value) []reflect.Value {
-		clientTrans := NewTransport(c.conn)
-		numOut := v.Type().NumOut()
-
 		// Output length is specified. Build an output
 		// when error happened with zero value.
+		numOut := v.Type().NumOut()
+
 		errorHandler := func(err error) []reflect.Value {
 			outArgs := make([]reflect.Value, numOut)
 			for i := 0; i < len(outArgs)-1; i++ {
@@ -45,6 +46,7 @@ func (c *Client) Call(serviceName string, funcPtr interface{}) {
 			// so that it can match Data.Args
 			sendArgs = append(sendArgs, args[i].Interface())
 		}
+		clientTrans := NewTransport(c.Conn, c.Lock)
 		err := clientTrans.Send(Data{
 			Name: serviceName,
 			Args: sendArgs,

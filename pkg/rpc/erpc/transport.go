@@ -4,18 +4,20 @@
 package erpc
 
 import (
-	"bufio"
 	"encoding/binary"
+	"io"
 	"net"
+	"sync"
 )
 
 // Transport stored a TCP connection
 type Transport struct {
 	conn net.Conn
+	lock *sync.Mutex
 }
 
-func NewTransport(conn net.Conn) *Transport {
-	return &Transport{conn}
+func NewTransport(conn net.Conn, lock *sync.Mutex) *Transport {
+	return &Transport{conn, lock}
 }
 
 // Send prepare a data struct with header recording body length.
@@ -39,6 +41,8 @@ func (t *Transport) Send(req Data) error {
 	copy(buf[4:], b)
 
 	// Write binary request to connection
+	t.lock.Lock()
+	defer t.lock.Unlock()
 	_, err = t.conn.Write(buf)
 	return err
 }
@@ -46,11 +50,13 @@ func (t *Transport) Send(req Data) error {
 // Receive read byte data from connection and transform
 // them into Data struct.
 func (t *Transport) Receive() (Data, error) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
 	// Read the header from a connection
 	header := make([]byte, 4)
-	reader := bufio.NewReader(t.conn)
-	_, err := reader.Read(header)
-	//_, err := io.ReadFull(t.conn, header)
+	//reader := bufio.NewReader(t.conn)
+	//_, err := reader.Read(header)
+	_, err := io.ReadFull(t.conn, header)
 	if err != nil {
 		return Data{}, err
 	}
@@ -61,8 +67,8 @@ func (t *Transport) Receive() (Data, error) {
 	// Read bodyLen size data from connection
 	// and decode to Data struct
 	byteData := make([]byte, bodyLen)
-	_, err = reader.Read(byteData)
-	//_, err = io.ReadFull(t.conn, byteData)
+	//_, err = reader.Read(byteData)
+	_, err = io.ReadFull(t.conn, byteData)
 	if err != nil {
 		return Data{}, nil
 	}

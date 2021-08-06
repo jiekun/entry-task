@@ -6,7 +6,9 @@ package service
 import (
 	"encoding/gob"
 	"errors"
+	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/constant"
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
 	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
 )
@@ -60,8 +62,12 @@ func RegisterUserServiceProto() {
 
 func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
 	RPCLogin := erpc_proto.Login
-	c := svc.eRpcClient
+	c, err := svc.getConn()
+	if err != nil{
+		return nil, err
+	}
 	c.Call("Login", &RPCLogin)
+
 	resp, err := RPCLogin(erpc_proto.LoginRequest{
 		Username: param.Username,
 		Password: param.Password,
@@ -74,9 +80,12 @@ func (svc *Service) CallLogin(param *LoginRequest) (*LoginResponse, error) {
 
 func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserResponse, error) {
 	RPCRegister := erpc_proto.Register
-	c := svc.eRpcClient
+	c, err := svc.getConn()
+	if err != nil{
+		return nil, err
+	}
 	c.Call("Register", &RPCRegister)
-	_, err := RPCRegister(erpc_proto.RegisterRequest{
+	_, err = RPCRegister(erpc_proto.RegisterRequest{
 		Username:   param.Username,
 		Password:   param.Password,
 		Nickname:   param.Nickname,
@@ -90,9 +99,12 @@ func (svc *Service) CallRegister(param *RegisterUserRequest) (*RegisterUserRespo
 
 func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, error) {
 	RPCEditUser := erpc_proto.EditUser
-	c := svc.eRpcClient
+	c, err := svc.getConn()
+	if err != nil{
+		return nil, err
+	}
 	c.Call("EditUser", &RPCEditUser)
-	_, err := RPCEditUser(erpc_proto.EditUserRequest{
+	_, err = RPCEditUser(erpc_proto.EditUserRequest{
 		SessionId:  param.SessionID,
 		Nickname:   param.Nickname,
 		ProfilePic: param.ProfilePic,
@@ -105,7 +117,10 @@ func (svc *Service) CallEditUser(param *EditUserRequest) (*EditUserResponse, err
 
 func (svc *Service) CallGetUser(param *GetUserRequest) (*GetUserResponse, error) {
 	RPCGetUser := erpc_proto.GetUser
-	c := svc.eRpcClient
+	c, err := svc.getConn()
+	if err != nil{
+		return nil, err
+	}
 	c.Call("GetUser", &RPCGetUser)
 	resp, err := RPCGetUser(erpc_proto.GetUserRequest{
 		SessionId: param.SessionID,
@@ -181,4 +196,19 @@ func (svc *Service) UserAuth(sessionID string) (string, error) {
 		return "", errors.New("svc.UserAuth failed")
 	}
 	return username, nil
+}
+
+func (svc *Service) getConn() (*erpc.Client, error) {
+	if global.RPCClientPool == nil {
+		cp, err := erpc.NewConnectionPool(global.ClientSetting.RPCHost, 10)
+		if err != nil {
+			return nil, err
+		}
+		global.RPCClientPool = cp
+	}
+	conn, lock, err := global.RPCClientPool.Get()
+	if err != nil {
+		return nil, err
+	}
+	return &erpc.Client{Conn: *conn, Lock: lock}, nil
 }

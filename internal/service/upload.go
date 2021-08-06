@@ -43,7 +43,10 @@ func (svc *Service) UploadFile(fileType int, file multipart.File, fileHeader *mu
 
 	// Transfer []byte via RPC
 	RPCUploadFile := erpc_proto.UploadFile
-	c := svc.eRpcClient
+	c, err := svc.getConn()
+	if err != nil{
+		return nil, err
+	}
 	c.Call("UploadFile", &RPCUploadFile)
 	resp, err := RPCUploadFile(erpc_proto.UploadRequest{
 		FileType: uint32(fileType),

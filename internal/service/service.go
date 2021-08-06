@@ -12,11 +12,11 @@ import (
 )
 
 type Service struct {
-	ctx        context.Context
-	dao        *dao.Dao
-	cache      *dao.RedisCache
-	gRpcClient *grpc.ClientConn
-	eRpcClient *erpc.Client
+	ctx          context.Context
+	dao          *dao.Dao
+	cache        *dao.RedisCache
+	gRpcClient   *grpc.ClientConn
+	eRpcConnPool *erpc.ConnectionPool
 }
 
 func New(ctx context.Context) Service {
@@ -24,7 +24,7 @@ func New(ctx context.Context) Service {
 	svc.dao = dao.New(global.DBEngine)
 	svc.cache = dao.NewCache(global.CacheClient)
 	svc.gRpcClient = global.GRPCClient
-	svc.eRpcClient = global.RPCClient
+	svc.eRpcConnPool = global.RPCClientPool
 
 	return svc
 }
