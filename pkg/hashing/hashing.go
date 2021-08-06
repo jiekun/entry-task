@@ -7,6 +7,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/2014bduck/entry-task/global"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // HashPassword: Added salt and return a hashed string
@@ -18,4 +19,14 @@ func HashPassword(input string) string {
 func HashWithMD5(input string) string {
 	hash := md5.Sum([]byte(input))
 	return hex.EncodeToString(hash[:])
+}
+
+func HashPasswordBcrypt(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func CheckPasswordHashBcrypt(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

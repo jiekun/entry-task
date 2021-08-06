@@ -78,6 +78,13 @@ func (svc UserService) Register(r proto.RegisterRequest) (*proto.RegisterReply, 
 	}
 
 	// Add Salt to pass
+	// Should use hashing.HashPasswordBcrypt in production.
+	// For test data reason we remain using MD5 hash with constant salt.
+	//
+	//hashedPass, err := hashing.HashPasswordBcrypt(r.Password)
+	//if err != nil{
+	//	return &proto.RegisterReply{}, nil
+	//}
 	hashedPass := hashing.HashPassword(r.Password)
 
 	// Create User to DB
@@ -123,7 +130,7 @@ func (svc UserService) GetUser(r proto.GetUserRequest) (*proto.GetUserReply, err
 	// Get Username
 	username, err := svc.UserAuth(r.SessionId)
 	if err != nil {
-		return  &proto.GetUserReply{}, err
+		return &proto.GetUserReply{}, err
 	}
 
 	cacheKey := constant.UserProfileCachePrefix + username
