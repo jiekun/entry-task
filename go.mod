@@ -3,7 +3,7 @@ module github.com/2014bduck/entry-task
 go 1.15
 
 require (
-	github.com/agiledragon/gomonkey v2.0.2+incompatible // indirect
+	github.com/agiledragon/gomonkey v2.0.2+incompatible
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-playground/validator/v10 v10.8.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.1

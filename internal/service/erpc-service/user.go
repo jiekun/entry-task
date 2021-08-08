@@ -62,7 +62,7 @@ func (svc UserService) Login(r proto.LoginRequest) (*proto.LoginReply, error) {
 	// Validation success
 	// Setting session cache
 	sessionID := uuid.NewV4()
-	err = svc.cache.Cache.Set(svc.ctx, constant.SessionIDCachePrefix+sessionID.String(), []byte(r.Username), 0).Err()
+	err = svc.cache.Set(svc.ctx, constant.SessionIDCachePrefix+sessionID.String(), []byte(r.Username), 0)
 
 	if err != nil {
 		return &proto.LoginReply{}, err
@@ -136,7 +136,7 @@ func (svc UserService) GetUser(r proto.GetUserRequest) (*proto.GetUserReply, err
 	cacheKey := constant.UserProfileCachePrefix + username
 
 	// Try loading user info from cache
-	userProfCache, err := svc.cache.Cache.Get(svc.ctx, cacheKey).Result()
+	userProfCache, err := svc.cache.Get(svc.ctx, cacheKey)
 	if err == nil {
 		userGetCacheResp := proto.GetUserReply{}
 		err = json.Unmarshal([]byte(userProfCache), &userGetCacheResp)
@@ -160,7 +160,7 @@ func (svc UserService) GetUser(r proto.GetUserRequest) (*proto.GetUserReply, err
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 3600*24*time.Second).Err() // Omit error
+	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, 3600*24*time.Second) // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}
@@ -184,7 +184,7 @@ func (svc UserService) UpdateUserCache(username string) error {
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Cache.Set(svc.ctx, cacheKey, cacheUser, 3600*24*time.Second).Err() // Omit error
+	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, 3600*24*time.Second) // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}
