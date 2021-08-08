@@ -376,3 +376,33 @@ func TestUserService_UserAuth(t *testing.T) {
 		}
 	})
 }
+
+func TestUserService_UpdateUserCache(t *testing.T) {
+	svc := NewUserService(context.Background())
+
+	// Mock stuffs
+	username := "test_username"
+	password := "test_password"
+	nickname := "test_nickname"
+
+	t.Run("normal update user cache", func(t *testing.T) {
+		// Mock DAO call
+		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc.dao), "GetUserByName", func(_ *dao.Dao, _ string) (models.UserTab, error) {
+			return models.UserTab{
+				Name:     username,
+				Nickname: nickname,
+				Password: password, // It's hashed actually.
+			}, nil
+		})
+		defer patches.Reset()
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface {}, _ time.Duration) error {
+			return nil
+		})
+
+		// Test and compare
+		err := svc.UpdateUserCache(username)
+		if err != nil {
+			t.Errorf("TestUserService_UpdateUserCache got error %v", err)
+		}
+	})
+}
