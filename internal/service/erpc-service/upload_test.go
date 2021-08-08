@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/2014bduck/entry-task/global"
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
 	"github.com/2014bduck/entry-task/pkg/upload"
 	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
@@ -15,6 +16,7 @@ import (
 
 func TestUploadService_UploadFile(t *testing.T) {
 	svc := NewUploadService(context.Background())
+	erpcServer := erpc.NewServer(":8000")
 
 	// Mock stuffs
 	fileName := "test.png"
@@ -27,6 +29,10 @@ func TestUploadService_UploadFile(t *testing.T) {
 		FileName: fileName,
 		Content: make([]byte, 32),
 	}
+
+	t.Run("normal service register", func(t *testing.T){
+		svc.RegisterUploadService(erpcServer)
+	})
 
 	t.Run("normal upload file", func(t *testing.T) {
 		want := erpc_proto.UploadReply{

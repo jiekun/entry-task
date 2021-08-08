@@ -11,6 +11,7 @@ import (
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/internal/models"
 	"github.com/2014bduck/entry-task/pkg/hashing"
+	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
 	"github.com/agiledragon/gomonkey"
 	"gorm.io/gorm"
@@ -404,5 +405,13 @@ func TestUserService_UpdateUserCache(t *testing.T) {
 		if err != nil {
 			t.Errorf("TestUserService_UpdateUserCache got error %v", err)
 		}
+	})
+}
+
+func TestUserService_RegisterUserService(t *testing.T) {
+	svc := NewUserService(context.Background())
+	erpcServer := erpc.NewServer(":8000")
+	t.Run("normal service register", func(t *testing.T){
+		svc.RegisterUserService(erpcServer)
 	})
 }
