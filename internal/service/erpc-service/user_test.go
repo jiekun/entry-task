@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/2014bduck/entry-task/internal/constant"
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/internal/models"
 	"github.com/2014bduck/entry-task/pkg/hashing"
@@ -253,6 +254,86 @@ func TestUserService_GetUser(t *testing.T) {
 		}
 		if reflect.DeepEqual(want, resp) {
 			t.Errorf("TestUserService_GetUser want %v got %v", want, resp)
+		}
+	})
+}
+
+func TestUserService_EditUser(t *testing.T) {
+	svc := NewUserService(context.Background())
+
+	// Mock stuffs
+	var userId uint32 = 0
+	username := "test_username"
+	nickname := "test_nickname"
+	profilePic := "test_profile_url"
+	sessionId := "test_session_id"
+
+	// Input
+	request := erpc_proto.EditUserRequest{
+		SessionId: sessionId,
+		Nickname: nickname,
+		ProfilePic: profilePic,
+	}
+
+	t.Run("normal edit user", func(t *testing.T) {
+		want := erpc_proto.EditUserReply{}
+		// Mock DAO call
+		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc), "UserAuth", func(_ UserService, _ string) (string, error) {
+			return username, nil
+		})
+		defer patches.Reset()
+		patches.ApplyMethod(reflect.TypeOf(svc.dao), "GetUserByName", func(_ *dao.Dao, _ string) (models.UserTab, error) {
+			return models.UserTab{
+				CommonModel: &models.CommonModel{
+					ID: userId,
+				},
+				Name:     username,
+				Nickname: nickname,
+				ProfilePic: profilePic,
+				Status: uint8(constant.EnabledStatus),
+			}, nil
+		})
+		patches.ApplyMethod(reflect.TypeOf(svc.dao), "UpdateUser", func(_ *dao.Dao, _ uint32, _, _ string) error {
+			return nil
+		})
+		patches.ApplyMethod(reflect.TypeOf(svc), "UpdateUserCache", func(_ UserService, _ string) error {
+			return nil
+		})
+
+		// Test and compare
+		resp, err := svc.EditUser(request)
+		if err != nil {
+			t.Errorf("TestUserService_EditUser got error %v", err)
+		}
+		if reflect.DeepEqual(want, resp) {
+			t.Errorf("TestUserService_EditUser want %v got %v", want, resp)
+		}
+	})
+	t.Run("normal update failed", func(t *testing.T) {
+		// Mock DAO call
+		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc), "UserAuth", func(_ UserService, _ string) (string, error) {
+			return username, nil
+		})
+		defer patches.Reset()
+		patches.ApplyMethod(reflect.TypeOf(svc.dao), "GetUserByName", func(_ *dao.Dao, _ string) (models.UserTab, error) {
+			return models.UserTab{
+				CommonModel: &models.CommonModel{
+					ID: userId,
+				},
+				Name:     username,
+				Nickname: nickname,
+				ProfilePic: profilePic,
+				Status: uint8(constant.EnabledStatus),
+			}, nil
+		})
+		patches.ApplyMethod(reflect.TypeOf(svc.dao), "UpdateUser", func(_ *dao.Dao, _ uint32, _, _ string) error {
+			return errors.New("error")
+		})
+
+		// Test and compare
+		_, err := svc.EditUser(request)
+		if err == nil {
+			t.Error("TestUserService_EditUser should return error but didn't")
 		}
 	})
 }
