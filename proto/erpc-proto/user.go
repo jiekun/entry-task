@@ -11,7 +11,7 @@ var (
 	EditUser func(EditUserRequest) (EditUserReply, error)
 )
 
-// Service interface for Server. Align with signature.
+// UserService interface for Server. Align with signature.
 type UserService interface {
 	Login(LoginRequest) (*LoginReply, error)
 	Register(RegisterRequest) (*RegisterReply, error)
