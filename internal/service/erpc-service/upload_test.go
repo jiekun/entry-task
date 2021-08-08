@@ -2,11 +2,13 @@ package erpc_service
 
 import (
 	"context"
+	"errors"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/pkg/setting"
 	"github.com/2014bduck/entry-task/pkg/upload"
 	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
 	"github.com/agiledragon/gomonkey"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -59,6 +61,28 @@ func TestUploadService_UploadFile(t *testing.T) {
 
 		if reflect.DeepEqual(want, resp) {
 			t.Errorf("TestUserService_UploadFile want %v got %v", want, resp)
+		}
+	})
+	t.Run("upload file failed", func(t *testing.T) {
+
+		// Mock DAO call
+		patches := gomonkey.ApplyFunc(upload.GetFileName, func(string) string {
+			return outputFileName
+		})
+		defer patches.Reset()
+		patches.ApplyFunc(upload.GetSavePath, func() string {
+			return ""
+		})
+		patches.ApplyFunc(upload.CheckSavePath, func(string) bool {
+			return true
+		})
+		patches.ApplyFunc(upload.CreateSavePath, func(string, os.FileMode) error {
+			return errors.New("errors")
+		})
+		// Test and compare
+		_, err := svc.UploadFile(request)
+		if err == nil {
+			t.Errorf("TestUserService_UploadFile should return error but didn't")
 		}
 	})
 }
