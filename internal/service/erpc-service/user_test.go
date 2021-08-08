@@ -5,6 +5,7 @@ package erpc_service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/internal/models"
@@ -168,13 +169,90 @@ func TestUserService_Login(t *testing.T) {
 			return password
 		})
 		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface {}, _ time.Duration) error {
-			return errors.New("failed")
+			return errors.New("error")
 		})
 
 		// Test and compare
 		_, err := svc.Login(request)
 		if err == nil {
 			t.Errorf("TestUserService_Login should return err but didn't")
+		}
+	})
+}
+
+func TestUserService_GetUser(t *testing.T) {
+	svc := NewUserService(context.Background())
+
+	// Mock stuffs
+	username := "test_username"
+	nickname := "test_nickname"
+	profilePic := "test_profile_url"
+	sessionId := "test_session_id"
+
+	// Input
+	request := erpc_proto.GetUserRequest{
+		SessionId: sessionId,
+	}
+
+	t.Run("normal getUser from cache", func(t *testing.T) {
+		want := erpc_proto.GetUserReply{
+			Username: username,
+			Nickname: nickname,
+			ProfilePic: profilePic,
+		}
+		// Mock DAO call
+		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc), "UserAuth", func(_ UserService, _ string) (string, error) {
+			return username, nil
+		})
+		defer patches.Reset()
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Get", func(_ *dao.RedisCache, _ context.Context, _ string) (string, error) {
+			v, _ := json.Marshal(want)
+			return string(v), nil
+		})
+
+		// Test and compare
+		resp, err := svc.GetUser(request)
+		if err != nil {
+			t.Errorf("TestUserService_GetUser got error %v", err)
+		}
+
+		if reflect.DeepEqual(want, resp) {
+			t.Errorf("TestUserService_GetUser want %v got %v", want, resp)
+		}
+	})
+
+	t.Run("normal getUser from db", func(t *testing.T) {
+		want := erpc_proto.GetUserReply{
+			Username: username,
+			Nickname: nickname,
+			ProfilePic: profilePic,
+		}
+		// Mock DAO call
+		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc), "UserAuth", func(_ UserService, _ string) (string, error) {
+			return username, nil
+		})
+		defer patches.Reset()
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Get", func(_ *dao.RedisCache, _ context.Context, _ string) (string, error) {
+			return "", errors.New("error")
+		})
+		patches.ApplyMethod(reflect.TypeOf(svc.dao), "GetUserByName", func(_ *dao.Dao, _ string) (models.UserTab, error) {
+			return models.UserTab{
+				Name:     username,
+				Nickname: nickname,
+				ProfilePic: profilePic,
+			}, nil
+		})
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface {}, _ time.Duration) error {
+			return nil
+		})
+
+		// Test and compare
+		resp, err := svc.GetUser(request)
+		if err != nil {
+			t.Errorf("TestUserService_GetUser got error %v", err)
+		}
+		if reflect.DeepEqual(want, resp) {
+			t.Errorf("TestUserService_GetUser want %v got %v", want, resp)
 		}
 	})
 }
