@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"github.com/2014bduck/entry-task/global"
-	"github.com/2014bduck/entry-task/internal/constant"
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"github.com/2014bduck/entry-task/pkg/upload"
@@ -53,13 +52,4 @@ func (svc UploadService) UploadFile(r proto.UploadRequest) (*proto.UploadReply, 
 	fileUrl := global.AppSetting.UploadServerUrl + "/" + fileName
 	return &proto.UploadReply{FileUrl: fileUrl, FileName: fileName}, nil
 
-}
-
-func (svc UserService) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(svc.ctx, constant.SessionIDCachePrefix+sessionID).Result()
-
-	if err != nil {
-		return "", errors.New("svc.UserAuth failed")
-	}
-	return username, nil
 }

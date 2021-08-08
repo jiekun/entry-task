@@ -309,7 +309,7 @@ func TestUserService_EditUser(t *testing.T) {
 			t.Errorf("TestUserService_EditUser want %v got %v", want, resp)
 		}
 	})
-	t.Run("normal update failed", func(t *testing.T) {
+	t.Run("update failed", func(t *testing.T) {
 		// Mock DAO call
 		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc), "UserAuth", func(_ UserService, _ string) (string, error) {
 			return username, nil
@@ -334,6 +334,45 @@ func TestUserService_EditUser(t *testing.T) {
 		_, err := svc.EditUser(request)
 		if err == nil {
 			t.Error("TestUserService_EditUser should return error but didn't")
+		}
+	})
+}
+
+func TestUserService_UserAuth(t *testing.T) {
+	svc := NewUserService(context.Background())
+
+	// Mock stuffs
+	username := "test_username"
+	sessionId := "test_session_id"
+
+	t.Run("normal user auth", func(t *testing.T) {
+		want := username
+		// Mock DAO call
+		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc.cache), "Get", func(_ *dao.RedisCache, _ context.Context, _ string) (string, error) {
+			return username, nil
+		})
+		defer patches.Reset()
+
+		// Test and compare
+		resp, err := svc.UserAuth(sessionId)
+		if err != nil {
+			t.Errorf("TestUserService_UserAuth got error %v", err)
+		}
+		if want != resp {
+			t.Errorf("TestUserService_UserAuth want %v got %v", want, resp)
+		}
+	})
+	t.Run("user auth failed", func(t *testing.T) {
+		// Mock DAO call
+		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc.cache), "Get", func(_ *dao.RedisCache, _ context.Context, _ string) (string, error) {
+			return "", errors.New("error")
+		})
+		defer patches.Reset()
+
+		// Test and compare
+		_, err := svc.UserAuth(sessionId)
+		if err == nil {
+			t.Errorf("TestUserService_EditUser should return error but didn't")
 		}
 	})
 }

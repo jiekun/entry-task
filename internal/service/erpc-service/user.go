@@ -191,11 +191,11 @@ func (svc UserService) UpdateUserCache(username string) error {
 	return nil
 }
 
-func (svc UploadService) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(svc.ctx, constant.SessionIDCachePrefix+sessionID).Result()
+func (svc UserService) UserAuth(sessionID string) (string, error) {
+	username, err := svc.cache.Get(svc.ctx, constant.SessionIDCachePrefix+sessionID)
 
 	if err != nil {
 		return "", errors.New("svc.UserAuth failed")
 	}
-	return string(username), nil
+	return username, nil
 }
