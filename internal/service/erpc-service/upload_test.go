@@ -58,7 +58,7 @@ func TestUploadService_UploadFile(t *testing.T) {
 		}
 
 		if reflect.DeepEqual(want, resp) {
-			t.Errorf("TestUserService_GetUser want %v got %v", want, resp)
+			t.Errorf("TestUserService_UploadFile want %v got %v", want, resp)
 		}
 	})
 }
