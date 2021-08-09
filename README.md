@@ -56,7 +56,7 @@ go tool cover -func profile.cov
 │    ├── http-server                        # 
 │    │    └── main.go                       # HTTP Server entry point
 │    └── rpc-server                         # 
-│        └── main.go                        # RPC Server with TinyPRC, deprecated
+│         └── main.go                       # RPC Server with TinyPRC, deprecated
 ├── configs                                 # 
 │    └── config.yaml.default                # Config Template
 ├── global                                  # 
