@@ -38,13 +38,21 @@ Lastly try to test if it works with:
 curl --location --request GET 'http://{your_http_host}/api/ping' # {"message":"pong"}
 ```
 
+To run unit tests, try:
+```bash
+go test -cover -covermode=atomic -gcflags=all=-l ./... -coverprofile=profile.cov
+go tool cover -func profile.cov
+```
+
 ## Project Layout
 ```
 ├── LICENSE
 ├── README.md
 ├── cmd                                     # 
+│    ├── erpc-server                        # 
+│    │    └── main.go                       # eRPC Server entry point
 │    ├── grpc-server                        # 
-│    │    └── main.go                       # RPC Server entry point
+│    │    └── main.go                       # gRPC Server entry point
 │    ├── http-server                        # 
 │    │    └── main.go                       # HTTP Server entry point
 │    └── rpc-server                         # 
@@ -58,16 +66,19 @@ curl --location --request GET 'http://{your_http_host}/api/ping' # {"message":"p
 │    ├── constant                           # 
 │    ├── dao                                # DAO Layer
 │    ├── error                              # 
-│    ├── grpc-service                       # Service Layer for gRPC service
 │    ├── models                             # Models and DAO methods
 │    ├── routers                            # 
 │    │    ├── api                           # Controller Layer
 │    │    └── router.go                     # Router for HTTP service
-│    ├── rpc-service                        # Service Layer for gRPC service, deprecated
-│    └── service                            # Service Layer for HTTP service
+│    └── service                            # 
+│         ├── erpc-service                  # Service Layer for eRPC service
+│         ├── grpc-service                  # Service Layer for gRPC service
+│         ├── http-service                  # Service Layer for HTTP service
+│         └── rpc-service                   # Service Layer for RPC service, deprecated
 ├── log                                     # 
 ├── pkg                                     # Public utils
 ├── proto                                   # 
+│    ├── erpc-proto                         # proto for eRPC service
 │    ├── grpc-proto                         # proto for gRPC service
 │    └── rpc-proto                          # proto for RPC service, deprecated
 ├── scripts                                 # Init & Test scripts 
