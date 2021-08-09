@@ -1,6 +1,5 @@
-[![Pipeline](https://git.garena.com/jiekun.zhu/golang-entry-task/badges/master/pipeline.svg)](https://git.garena.com/jiekun.zhu/golang-entry-task/-/commits/master)
-[![Coverage](https://git.garena.com/jiekun.zhu/golang-entry-task/badges/master/coverage.svg)](https://git.garena.com/jiekun.zhu/golang-entry-task/-/commits/master)
-
+![pipeline](https://github.com/2014BDuck/entry-task/actions/workflows/github-actions.yml/badge.svg)
+[![codecov](https://codecov.io/gh/2014BDuck/entry-task/branch/master/graph/badge.svg?token=V0Y5Q4D3I0)](https://codecov.io/gh/2014BDuck/entry-task)
 # Entry Task
 ## Introduction
 `entry-task` is a web service based on **Gin** framework. It provides basic user management feature.
