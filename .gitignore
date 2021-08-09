@@ -30,3 +30,4 @@ configs/config.yaml
 
 # Coverage
 profile.cov
+coverage.txt
