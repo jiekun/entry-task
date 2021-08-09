@@ -18,10 +18,10 @@ Before getting start, you need **MySQL** and **Redis** installed on your machine
 Following commands will help you set up the project and run it locally:
 ```bash
 # generate a config file
-cp ./config/config.yaml.defaul ./config/config.yaml
+cp ./configs/config.yaml.defaul ./config/config.yaml
 
 # modify the host/db/etc settings in config file
-vim ./config/config.yaml
+vim ./configs/config.yaml
 
 # packages dependancy
 go mod tidy
