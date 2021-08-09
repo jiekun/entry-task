@@ -1,4 +1,4 @@
-![pipeline](https://github.com/2014BDuck/entry-task/actions/workflows/github-actions.yml/badge.svg)
+[![pipeline](https://github.com/2014BDuck/entry-task/actions/workflows/github-actions.yml/badge.svg)](https://github.com/2014BDuck/entry-task/actions)
 [![codecov](https://codecov.io/gh/2014BDuck/entry-task/branch/master/graph/badge.svg?token=V0Y5Q4D3I0)](https://codecov.io/gh/2014BDuck/entry-task)
 # Entry Task
 ## Introduction
