@@ -146,7 +146,7 @@ func (svc UserService) GetUser(ctx context.Context, r *proto.GetUserRequest) (*p
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, 3600 * 24 * time.Second) // Omit error
+	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, 3600*24*time.Second) // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}
@@ -170,18 +170,18 @@ func (svc UserService) UpdateUserCache(username string) error {
 
 	// Set user to cache
 	cacheUser, _ := json.Marshal(userGetResp)
-	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, 3600 * 24 * time.Second) // Omit error
+	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, 3600*24*time.Second) // Omit error
 	if err != nil {
 		global.Logger.Errorf("svc.UserGet: set cache failed: %v", err)
 	}
 	return nil
 }
 
-func (svc UploadService) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(svc.ctx, constant.SessionIDCachePrefix+sessionID).Result()
+func (svc UserService) UserAuth(sessionID string) (string, error) {
+	username, err := svc.cache.Get(svc.ctx, constant.SessionIDCachePrefix+sessionID)
 
 	if err != nil {
 		return "", errors.New("svc.UserAuth failed")
 	}
-	return string(username), nil
+	return username, nil
 }
