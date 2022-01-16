@@ -10,7 +10,7 @@ import (
 	"github.com/2014bduck/entry-task/internal/constant"
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/pkg/upload"
-	pb "github.com/2014bduck/entry-task/proto/grpc-proto"
+	"github.com/2014bduck/entry-task/proto"
 	"os"
 )
 
@@ -18,7 +18,7 @@ type UploadService struct {
 	ctx   context.Context
 	dao   *dao.Dao
 	cache *dao.RedisCache
-	pb.UnimplementedUploadServiceServer
+	proto.UnimplementedUploadServiceServer
 }
 
 func NewUploadService(ctx context.Context) UploadService {
@@ -29,7 +29,7 @@ func NewUploadService(ctx context.Context) UploadService {
 	return svc
 }
 
-func (svc UploadService) UploadFile(ctx context.Context, r *pb.UploadRequest) (*pb.UploadReply, error) {
+func (svc UploadService) UploadFile(ctx context.Context, r *proto.UploadRequest) (*proto.UploadReply, error) {
 	fileName := upload.GetFileName(r.FileName) // MD5'd
 	uploadSavePath := upload.GetSavePath()
 	dst := uploadSavePath + "/" + fileName
@@ -47,12 +47,12 @@ func (svc UploadService) UploadFile(ctx context.Context, r *pb.UploadRequest) (*
 		return nil, err
 	}
 	fileUrl := global.AppSetting.UploadServerUrl + "/" + fileName
-	return &pb.UploadReply{FileUrl: fileUrl, FileName: fileName}, nil
+	return &proto.UploadReply{FileUrl: fileUrl, FileName: fileName}, nil
 
 }
 
 func (svc UserService) UserAuth(sessionID string) (string, error) {
-	username, err := svc.cache.Cache.Get(svc.ctx, constant.SessionIDCachePrefix + sessionID).Result()
+	username, err := svc.cache.Get(svc.ctx, constant.SessionIDCachePrefix + sessionID)
 
 	if err != nil {
 		return "", errors.New("svc.UserAuth failed")

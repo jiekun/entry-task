@@ -7,7 +7,6 @@ import (
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/models"
 	"github.com/2014bduck/entry-task/internal/routers"
-	"github.com/2014bduck/entry-task/internal/service/http-service"
 	"github.com/2014bduck/entry-task/pkg/logger"
 	"github.com/2014bduck/entry-task/pkg/rpc/grpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
@@ -166,10 +165,6 @@ func setupRPCClient() error {
 		log.Fatalf("err: %v", err)
 	}
 	global.GRPCClient = clientConn
-
-	// Lazy connect
-	http_service.RegisterUserServiceProto()
-	http_service.RegisterUploadServiceProto()
 	return nil
 }
 

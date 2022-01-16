@@ -1,7 +1,7 @@
 // @Author: 2014BDuck
 // @Date: 2021/8/6
 
-package erpc_service
+package grpc_service
 
 import (
 	"context"
@@ -11,8 +11,7 @@ import (
 	"github.com/2014bduck/entry-task/internal/dao"
 	"github.com/2014bduck/entry-task/internal/models"
 	"github.com/2014bduck/entry-task/pkg/hashing"
-	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
-	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
+	"github.com/2014bduck/entry-task/proto"
 	"github.com/agiledragon/gomonkey"
 	"gorm.io/gorm"
 	"reflect"
@@ -29,16 +28,13 @@ func TestUserService_Register(t *testing.T) {
 	password := "test_password"
 
 	// Input
-	request := erpc_proto.RegisterRequest{
+	request := &proto.RegisterRequest{
 		Username: username,
 		Nickname: nickname,
 		Password: password,
 	}
 
 	t.Run("normal register", func(t *testing.T) {
-		// Target output
-		want := &erpc_proto.RegisterReply{}
-
 		// Mock DAO call
 		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc.dao), "GetUserByName", func(_ *dao.Dao, _ string) (models.UserTab, error) {
 			return models.UserTab{}, gorm.ErrRecordNotFound
@@ -54,15 +50,14 @@ func TestUserService_Register(t *testing.T) {
 				Password: password, // It's hashed actually.
 			}, nil
 		})
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface{}, _ time.Duration) error {
+			return nil
+		})
 
 		// Test and compare with reflect.DeepEqual
-		resp, err := svc.Register(request)
+		_, err := svc.Register(context.Background(), request)
 		if err != nil {
 			t.Errorf("TestUserService_Register got error %v", err)
-		}
-
-		if !reflect.DeepEqual(want, resp) {
-			t.Errorf("TestUserService_Register want: %v got %v", want, resp)
 		}
 	})
 
@@ -74,7 +69,7 @@ func TestUserService_Register(t *testing.T) {
 		defer patches.Reset()
 
 		// should return an err
-		_, err := svc.Register(request)
+		_, err := svc.Register(context.Background(), request)
 		if err == nil {
 			t.Error("TestUserService_Register should return error but didn't")
 		}
@@ -91,7 +86,7 @@ func TestUserService_Login(t *testing.T) {
 	password := "test_password"
 
 	// Input
-	request := erpc_proto.LoginRequest{
+	request := &proto.LoginRequest{
 		Username: username,
 		Password: password,
 	}
@@ -109,17 +104,17 @@ func TestUserService_Login(t *testing.T) {
 		patches.ApplyFunc(hashing.HashPassword, func(_ string) string {
 			return password
 		})
-		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface {}, _ time.Duration) error {
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface{}, _ time.Duration) error {
 			return nil
 		})
 
 		// Test and compare
-		resp, err := svc.Login(request)
+		resp, err := svc.Login(context.Background(), request)
 		if err != nil {
 			t.Errorf("TestUserService_Login got error %v", err)
 		}
 
-		if resp.SessionId == "" {
+		if resp.GetSessionId() == "" {
 			t.Errorf("TestUserService_Login got %v", resp)
 		}
 	})
@@ -131,7 +126,7 @@ func TestUserService_Login(t *testing.T) {
 		})
 		defer patches.Reset()
 		// Test and compare
-		_, err := svc.Login(request)
+		_, err := svc.Login(context.Background(), request)
 		if err == nil {
 			t.Errorf("TestUserService_Login should return err but didn't")
 		}
@@ -151,7 +146,7 @@ func TestUserService_Login(t *testing.T) {
 			return password
 		})
 		// Test and compare
-		_, err := svc.Login(request)
+		_, err := svc.Login(context.Background(), request)
 		if err == nil {
 			t.Errorf("TestUserService_Login should return err but didn't")
 		}
@@ -170,12 +165,12 @@ func TestUserService_Login(t *testing.T) {
 		patches.ApplyFunc(hashing.HashPassword, func(_ string) string {
 			return password
 		})
-		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface {}, _ time.Duration) error {
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface{}, _ time.Duration) error {
 			return errors.New("error")
 		})
 
 		// Test and compare
-		_, err := svc.Login(request)
+		_, err := svc.Login(context.Background(), request)
 		if err == nil {
 			t.Errorf("TestUserService_Login should return err but didn't")
 		}
@@ -192,14 +187,14 @@ func TestUserService_GetUser(t *testing.T) {
 	sessionId := "test_session_id"
 
 	// Input
-	request := erpc_proto.GetUserRequest{
+	request := &proto.GetUserRequest{
 		SessionId: sessionId,
 	}
 
 	t.Run("normal getUser from cache", func(t *testing.T) {
-		want := erpc_proto.GetUserReply{
-			Username: username,
-			Nickname: nickname,
+		want := &proto.GetUserReply{
+			Username:   username,
+			Nickname:   nickname,
 			ProfilePic: profilePic,
 		}
 		// Mock DAO call
@@ -213,20 +208,20 @@ func TestUserService_GetUser(t *testing.T) {
 		})
 
 		// Test and compare
-		resp, err := svc.GetUser(request)
+		resp, err := svc.GetUser(context.Background(), request)
 		if err != nil {
 			t.Errorf("TestUserService_GetUser got error %v", err)
 		}
 
-		if reflect.DeepEqual(want, resp) {
+		if want.Nickname != resp.GetNickname() || want.Username != resp.GetUsername() || want.ProfilePic != resp.GetProfilePic() {
 			t.Errorf("TestUserService_GetUser want %v got %v", want, resp)
 		}
 	})
 
 	t.Run("normal getUser from db", func(t *testing.T) {
-		want := erpc_proto.GetUserReply{
-			Username: username,
-			Nickname: nickname,
+		want := &proto.GetUserReply{
+			Username:   username,
+			Nickname:   nickname,
 			ProfilePic: profilePic,
 		}
 		// Mock DAO call
@@ -239,21 +234,21 @@ func TestUserService_GetUser(t *testing.T) {
 		})
 		patches.ApplyMethod(reflect.TypeOf(svc.dao), "GetUserByName", func(_ *dao.Dao, _ string) (models.UserTab, error) {
 			return models.UserTab{
-				Name:     username,
-				Nickname: nickname,
+				Name:       username,
+				Nickname:   nickname,
 				ProfilePic: profilePic,
 			}, nil
 		})
-		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface {}, _ time.Duration) error {
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface{}, _ time.Duration) error {
 			return nil
 		})
 
 		// Test and compare
-		resp, err := svc.GetUser(request)
+		resp, err := svc.GetUser(context.Background(), request)
 		if err != nil {
 			t.Errorf("TestUserService_GetUser got error %v", err)
 		}
-		if reflect.DeepEqual(want, resp) {
+		if want.Nickname != resp.GetNickname() || want.Username != resp.GetUsername() || want.ProfilePic != resp.GetProfilePic() {
 			t.Errorf("TestUserService_GetUser want %v got %v", want, resp)
 		}
 	})
@@ -270,14 +265,13 @@ func TestUserService_EditUser(t *testing.T) {
 	sessionId := "test_session_id"
 
 	// Input
-	request := erpc_proto.EditUserRequest{
-		SessionId: sessionId,
-		Nickname: nickname,
+	request := &proto.EditUserRequest{
+		SessionId:  sessionId,
+		Nickname:   nickname,
 		ProfilePic: profilePic,
 	}
 
 	t.Run("normal edit user", func(t *testing.T) {
-		want := erpc_proto.EditUserReply{}
 		// Mock DAO call
 		patches := gomonkey.ApplyMethod(reflect.TypeOf(svc), "UserAuth", func(_ UserService, _ string) (string, error) {
 			return username, nil
@@ -288,10 +282,10 @@ func TestUserService_EditUser(t *testing.T) {
 				CommonModel: &models.CommonModel{
 					ID: userId,
 				},
-				Name:     username,
-				Nickname: nickname,
+				Name:       username,
+				Nickname:   nickname,
 				ProfilePic: profilePic,
-				Status: uint8(constant.EnabledStatus),
+				Status:     uint8(constant.EnabledStatus),
 			}, nil
 		})
 		patches.ApplyMethod(reflect.TypeOf(svc.dao), "UpdateUser", func(_ *dao.Dao, _ uint32, _, _ string) error {
@@ -302,12 +296,9 @@ func TestUserService_EditUser(t *testing.T) {
 		})
 
 		// Test and compare
-		resp, err := svc.EditUser(request)
+		_, err := svc.EditUser(context.Background(), request)
 		if err != nil {
 			t.Errorf("TestUserService_EditUser got error %v", err)
-		}
-		if reflect.DeepEqual(want, resp) {
-			t.Errorf("TestUserService_EditUser want %v got %v", want, resp)
 		}
 	})
 	t.Run("update failed", func(t *testing.T) {
@@ -321,10 +312,10 @@ func TestUserService_EditUser(t *testing.T) {
 				CommonModel: &models.CommonModel{
 					ID: userId,
 				},
-				Name:     username,
-				Nickname: nickname,
+				Name:       username,
+				Nickname:   nickname,
 				ProfilePic: profilePic,
-				Status: uint8(constant.EnabledStatus),
+				Status:     uint8(constant.EnabledStatus),
 			}, nil
 		})
 		patches.ApplyMethod(reflect.TypeOf(svc.dao), "UpdateUser", func(_ *dao.Dao, _ uint32, _, _ string) error {
@@ -332,7 +323,7 @@ func TestUserService_EditUser(t *testing.T) {
 		})
 
 		// Test and compare
-		_, err := svc.EditUser(request)
+		_, err := svc.EditUser(context.Background(), request)
 		if err == nil {
 			t.Error("TestUserService_EditUser should return error but didn't")
 		}
@@ -396,7 +387,7 @@ func TestUserService_UpdateUserCache(t *testing.T) {
 			}, nil
 		})
 		defer patches.Reset()
-		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface {}, _ time.Duration) error {
+		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface{}, _ time.Duration) error {
 			return nil
 		})
 
@@ -405,13 +396,5 @@ func TestUserService_UpdateUserCache(t *testing.T) {
 		if err != nil {
 			t.Errorf("TestUserService_UpdateUserCache got error %v", err)
 		}
-	})
-}
-
-func TestUserService_RegisterUserService(t *testing.T) {
-	svc := NewUserService(context.Background())
-	erpcServer := erpc.NewServer(":8000")
-	t.Run("normal service register", func(t *testing.T){
-		svc.RegisterUserService(erpcServer)
 	})
 }

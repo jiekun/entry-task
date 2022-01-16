@@ -28,7 +28,7 @@ func LoginRequired(c *gin.Context) {
 	response := resp.NewResponse(c)
 	sessionID, err := c.Cookie("session_id")
 	svc := http_service.New(c.Request.Context())
-	username, err := svc.UserAuth(sessionID)
+	username, err := svc.AuthUser(sessionID)
 	if err != nil {
 		// Abort the request with the appropriate error code
 		response.ToAbortErrorResponse(errcode.ErrorUserNotLogin)

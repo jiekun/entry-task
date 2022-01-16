@@ -28,7 +28,7 @@ func (u User) Login(c *gin.Context) {
 		return
 	}
 	svc := http_service.New(c.Request.Context())
-	loginResponse, err := svc.CallLogin(&param)
+	loginResponse, err := svc.Login(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Login errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserLogin)
@@ -49,7 +49,7 @@ func (u User) Register(c *gin.Context) {
 		return
 	}
 	svc := http_service.New(c.Request.Context())
-	loginResponse, err := svc.CallRegister(&param)
+	loginResponse, err := svc.Register(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Register errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserRegister)
@@ -74,7 +74,7 @@ func (u User) Edit(c *gin.Context) {
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 
 	svc := http_service.New(c.Request.Context())
-	editResponse, err := svc.CallEditUser(&param)
+	editResponse, err := svc.EditUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Edit errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserEdit)
@@ -93,7 +93,7 @@ func (u User) Get(c *gin.Context) {
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 
 	svc := http_service.New(c.Request.Context())
-	getResponse, err := svc.CallGetUser(&param)
+	getResponse, err := svc.GetUser(&param)
 	if err != nil {
 		global.Logger.Errorf("app.Get errs: %v", err)
 		response.ToErrorResponse(errcode.ErrorUserGet)

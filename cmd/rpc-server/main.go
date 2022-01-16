@@ -5,25 +5,20 @@ package main
 
 import (
 	"context"
-	"encoding/gob"
 	"flag"
-	"fmt"
 	"github.com/2014bduck/entry-task/global"
 	"github.com/2014bduck/entry-task/internal/models"
-	"github.com/2014bduck/entry-task/internal/service/rpc-service"
+	grpc_service "github.com/2014bduck/entry-task/internal/service/grpc-service"
 	"github.com/2014bduck/entry-task/pkg/logger"
-	"github.com/2014bduck/entry-task/pkg/rpc/tinyrpc"
+	"github.com/2014bduck/entry-task/pkg/middleware"
 	"github.com/2014bduck/entry-task/pkg/setting"
-	rpcproto "github.com/2014bduck/entry-task/proto/rpc-proto"
+	"github.com/2014bduck/entry-task/proto"
+	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"google.golang.org/grpc"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"io"
 	"log"
 	"net"
-	"os"
-	"os/signal"
-	"reflect"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -32,106 +27,6 @@ var (
 	runMode string
 	config  string
 )
-
-// Server struct
-type Server struct {
-	addr  string
-	funcs map[string]reflect.Value
-}
-
-// NewServer creates a new server
-func NewServer(addr string) *Server {
-	return &Server{addr: addr, funcs: make(map[string]reflect.Value)}
-}
-
-// Run server
-func (s *Server) Run() {
-	l, err := net.Listen("tcp", s.addr)
-	if err != nil {
-		log.Printf("listen on %s err: %v\n", s.addr, err)
-		return
-	}
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			log.Printf("accept err: %v\n", err)
-			continue
-		}
-
-		go func() {
-			srvTransport := tinyrpc.NewTransport(conn)
-
-			for {
-				// read request from client
-				req, err := srvTransport.Receive()
-				if err != nil {
-					if err != io.EOF {
-						log.Printf("read err: %v\n", err)
-					}
-					return
-				}
-				// get method by name
-				f, ok := s.funcs[req.Name]
-				if !ok { // if method requested does not exist
-					e := fmt.Sprintf("func %s does not exist", req.Name)
-					log.Println(e)
-					if err = srvTransport.Send(tinyrpc.Data{Name: req.Name, Err: e}); err != nil {
-						log.Printf("transport write err: %v\n", err)
-					}
-					continue
-				}
-				log.Printf("func %s is called\n", req.Name)
-				// unpack request arguments
-				inArgs := make([]reflect.Value, len(req.Args))
-				for i := range req.Args {
-					inArgs[i] = reflect.ValueOf(req.Args[i])
-				}
-				// invoke requested method
-				out := f.Call(inArgs)
-				// pack response arguments (except error)
-				outArgs := make([]interface{}, len(out)-1)
-				for i := 0; i < len(out)-1; i++ {
-					outArgs[i] = out[i].Interface()
-				}
-				// pack error argument
-				var e string
-				if _, ok := out[len(out)-1].Interface().(error); !ok {
-					e = ""
-				} else {
-					e = out[len(out)-1].Interface().(error).Error()
-				}
-				// send response to client
-				err = srvTransport.Send(tinyrpc.Data{Name: req.Name, Args: outArgs, Err: e})
-				if err != nil {
-					log.Printf("transport write err: %v\n", err)
-				}
-			}
-		}()
-	}
-}
-
-// Register a method via name
-func (s *Server) Register(name string, f interface{}) {
-	if _, ok := s.funcs[name]; ok {
-		return
-	}
-	s.funcs[name] = reflect.ValueOf(f)
-}
-
-func main() {
-	s := NewServer(":" + global.ServerSetting.RPCPort)
-	c := context.Background()
-	svc := rpcservice.New(c)
-	registerRPC(s, svc)
-	log.Printf("Starting RPC server, Listening %s...\n", port)
-	go s.Run()
-
-	quit := make(chan os.Signal)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down server...")
-	log.Println("Server exited")
-}
 
 func init() {
 	err := setupFlag()
@@ -243,17 +138,24 @@ func setupLogger() error {
 	return nil
 }
 
-func registerRPC(s *Server, svc rpcservice.Service) {
-	gob.Register(rpcproto.UserLoginRequest{})
-	gob.Register(rpcproto.UserLoginResponse{})
-	gob.Register(rpcproto.UserRegisterRequest{})
-	gob.Register(rpcproto.UserRegisterResponse{})
-	gob.Register(rpcproto.UserEditRequest{})
-	gob.Register(rpcproto.UserEditResponse{})
-	gob.Register(rpcproto.UserGetRequest{})
-	gob.Register(rpcproto.UserGetResponse{})
-	s.Register("Register", svc.UserRegister)
-	s.Register("Login", svc.UserLogin)
-	s.Register("EditUser", svc.UserEdit)
-	s.Register("GetUser", svc.UserGet)
+func main() {
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
+			middleware.Recovery,
+		)),
+	}
+	s := grpc.NewServer(opts...)
+	c := context.Background()
+
+	proto.RegisterUserServiceServer(s, grpc_service.NewUserService(c))
+	proto.RegisterUploadServiceServer(s, grpc_service.NewUploadService(c))
+
+	lis, err := net.Listen("tcp", ":"+global.ServerSetting.RPCPort)
+	if err != nil {
+		log.Fatalf("net.Listen err: %v", err)
+	}
+	err = s.Serve(lis)
+	if err != nil {
+		log.Fatalf("net.Serve err: %v", err)
+	}
 }

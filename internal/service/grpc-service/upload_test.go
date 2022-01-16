@@ -1,22 +1,19 @@
-package erpc_service
+package grpc_service
 
 import (
 	"context"
 	"errors"
 	"github.com/2014bduck/entry-task/global"
-	"github.com/2014bduck/entry-task/pkg/rpc/erpc"
 	"github.com/2014bduck/entry-task/pkg/setting"
 	"github.com/2014bduck/entry-task/pkg/upload"
-	erpc_proto "github.com/2014bduck/entry-task/proto/erpc-proto"
+	"github.com/2014bduck/entry-task/proto"
 	"github.com/agiledragon/gomonkey"
 	"os"
-	"reflect"
 	"testing"
 )
 
 func TestUploadService_UploadFile(t *testing.T) {
 	svc := NewUploadService(context.Background())
-	erpcServer := erpc.NewServer(":8000")
 
 	// Mock stuffs
 	fileName := "test.png"
@@ -24,19 +21,15 @@ func TestUploadService_UploadFile(t *testing.T) {
 	serverUrl := "127.0.0.1"
 
 	// Input
-	request := erpc_proto.UploadRequest{
+	request := &proto.UploadRequest{
 		FileType: uint32(upload.TypeImage),
 		FileName: fileName,
-		Content: make([]byte, 32),
+		Content:  make([]byte, 32),
 	}
 
-	t.Run("normal service register", func(t *testing.T){
-		svc.RegisterUploadService(erpcServer)
-	})
-
 	t.Run("normal upload file", func(t *testing.T) {
-		want := erpc_proto.UploadReply{
-			FileUrl: serverUrl +"/"+ outputFileName,
+		want := &proto.UploadReply{
+			FileUrl:  serverUrl + "/" + outputFileName,
 			FileName: outputFileName,
 		}
 		// Mock DAO call
@@ -60,12 +53,12 @@ func TestUploadService_UploadFile(t *testing.T) {
 			UploadServerUrl: serverUrl,
 		})
 		// Test and compare
-		resp, err := svc.UploadFile(request)
+		resp, err := svc.UploadFile(context.Background(), request)
 		if err != nil {
 			t.Errorf("TestUserService_UploadFile got error %v", err)
 		}
 
-		if reflect.DeepEqual(want, resp) {
+		if want.FileName != resp.GetFileName() || resp.FileUrl != resp.GetFileUrl() {
 			t.Errorf("TestUserService_UploadFile want %v got %v", want, resp)
 		}
 	})
@@ -86,7 +79,7 @@ func TestUploadService_UploadFile(t *testing.T) {
 			return errors.New("errors")
 		})
 		// Test and compare
-		_, err := svc.UploadFile(request)
+		_, err := svc.UploadFile(context.Background(), request)
 		if err == nil {
 			t.Errorf("TestUserService_UploadFile should return error but didn't")
 		}
