@@ -8,5 +8,5 @@ unit-test-job:
     - echo "Code format check begin..."
     - go vet ./...
     - echo "Unit test begin..."
-    - go test -cover -covermode=atomic -gcflags=all=-l ./internal/service -coverprofile=profile.cov
+    - go test -cover -covermode=atomic -gcflags=all=-l ./internal/service/... -coverprofile=profile.cov
     - go tool cover -func profile.cov
