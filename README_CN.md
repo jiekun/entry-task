@@ -1,51 +1,49 @@
 [![pipeline](https://github.com/2014BDuck/entry-task/actions/workflows/github-actions.yml/badge.svg)](https://github.com/2014BDuck/entry-task/actions)
 [![codecov](https://codecov.io/gh/2014BDuck/entry-task/branch/master/graph/badge.svg?token=V0Y5Q4D3I0)](https://codecov.io/gh/2014BDuck/entry-task)
 # Entry Task
-## Introduction
-`entry-task` is a web service based on **Gin** framework. It provides basic user management feature.
+## 简介
+`entry-task` 是一个基于 **Gin** 框架的 web service，提供基础的用户管理功能。
 
-README is also available in Chinese: [中文文档](https://github.com/2014BDuck/entry-task/blob/master/README_CN.md).
+## 文档
+你可以从 [Entry Task 系统设计说明书](https://docs.google.com/document/d/1sd5S8xdJRYcZrYAOM1cREnuQslZnkj8kIIQccHNmlq4/edit#) 和 `README.md` 中查阅以下内容:
+- 功能描述
+- API 文档
+- Deploy 部署文档
+- 性能测试结果
 
-## Document
-You could find following guidance on [Entry Task System Design Document](https://docs.google.com/document/d/1sd5S8xdJRYcZrYAOM1cREnuQslZnkj8kIIQccHNmlq4/edit#) and `README.md`:
-- Feature Description
-- API Doc
-- Deploy Doc
-- Benchmark Result
+## 配置运行
+在启动之前, 你需要在本地安装 **MySQL** and **Redis**。 请从 `go.mod` 中查看本项目使用到的第三方库。 script 目录中的 `init.sql` 文件包含了初始化数据库所需要的语句。
 
-## Setup
-Before getting start, you need **MySQL** and **Redis** installed on your machine. And please refer `go.mod` for the Go packages used in this project. `init.sql` in script folder can help to initialize database & table we need.
-
-Following commands will help you set up the project and run it locally:
+以下命令能帮助你在本地配置项目并运行:
 ```bash
-# generate a config file
+# 生成一份配置文件
 cp ./configs/config.yaml.defaul ./configs/config.yaml
 
-# modify the host/db/etc settings in config file
+# 修改配置文件中的 host/db 及其他配置
 vim ./configs/config.yaml
 
-# packages dependancy
+# 处理第三方库依赖
 go mod tidy
 
-# run a RPC server
+# 启动 RPC server
 go run ./cmd/grpc-server/main.go
 
-# run a HTTP server
+# 启动 HTTP server
 go run ./cmd/http-server/main.go 
 ```
 
-Lastly try to test if it works with:
+最后测试一下是否正确运行:
 ```bash
 curl --location --request GET 'http://{your_http_host}/api/ping' # {"message":"pong"}
 ```
 
-To run unit tests, try:
+用以下命令执行单元测试:
 ```bash
 go test -cover -covermode=atomic -gcflags=all=-l ./... -coverprofile=profile.cov
 go tool cover -func profile.cov
 ```
 
-## Project Layout
+## 项目结构
 ```
 ├── LICENSE
 ├── README.md
