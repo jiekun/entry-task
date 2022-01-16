@@ -6,6 +6,8 @@
 
 README is also available in Chinese: [中文文档](https://github.com/2014BDuck/entry-task/blob/master/README_CN.md).
 
+**IMPORTANT**: This repo is set to public for study and discussion purposes. You may fork this project for reference usage. Please do **NOT** copy and paste directly when working on your own entry task.
+
 ## Document
 You could find following guidance on [Entry Task System Design Document](https://docs.google.com/document/d/1sd5S8xdJRYcZrYAOM1cREnuQslZnkj8kIIQccHNmlq4/edit#) and `README.md`:
 - Feature Description
