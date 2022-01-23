@@ -45,7 +45,7 @@ func (svc UserService) Login(ctx context.Context, r *proto.LoginRequest) (*proto
 	}
 
 	// Invalid cases
-	if hashing.CheckPasswordHashBcrypt(user.Password, r.Password) {
+	if !hashing.CheckPasswordHashBcrypt(user.Password, r.Password) {
 		return nil, errors.New("svc.UserLogin: pwd incorrect")
 	} else if user.Status != uint8(constant.EnabledStatus) {
 		return nil, errors.New("svc.UserLogin: status disabled")
