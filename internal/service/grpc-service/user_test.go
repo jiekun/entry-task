@@ -40,8 +40,8 @@ func TestUserService_Register(t *testing.T) {
 			return models.UserTab{}, gorm.ErrRecordNotFound
 		})
 		defer patches.Reset()
-		patches.ApplyFunc(hashing.HashPassword, func(_ string) string {
-			return "mock_hashing"
+		patches.ApplyFunc(hashing.HashPasswordBcrypt, func(_ string) (string, error) {
+			return "mock_hashing", nil
 		})
 		patches.ApplyMethod(reflect.TypeOf(svc.dao), "CreateUser", func(_ *dao.Dao, _, _, _, _ string, _ uint8) (*models.UserTab, error) {
 			return &models.UserTab{
@@ -101,8 +101,8 @@ func TestUserService_Login(t *testing.T) {
 			}, nil
 		})
 		defer patches.Reset()
-		patches.ApplyFunc(hashing.HashPassword, func(_ string) string {
-			return password
+		patches.ApplyFunc(hashing.CheckPasswordHashBcrypt, func(_, _ string) bool {
+			return true
 		})
 		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface{}, _ time.Duration) error {
 			return nil
@@ -142,8 +142,8 @@ func TestUserService_Login(t *testing.T) {
 			}, nil
 		})
 		defer patches.Reset()
-		patches.ApplyFunc(hashing.HashPassword, func(_ string) string {
-			return password
+		patches.ApplyFunc(hashing.CheckPasswordHashBcrypt, func(_, _ string) bool {
+			return false
 		})
 		// Test and compare
 		_, err := svc.Login(context.Background(), request)
@@ -162,8 +162,8 @@ func TestUserService_Login(t *testing.T) {
 			}, nil
 		})
 		defer patches.Reset()
-		patches.ApplyFunc(hashing.HashPassword, func(_ string) string {
-			return password
+		patches.ApplyFunc(hashing.CheckPasswordHashBcrypt, func(_, _ string) bool {
+			return true
 		})
 		patches.ApplyMethod(reflect.TypeOf(svc.cache), "Set", func(_ *dao.RedisCache, _ context.Context, _ string, _ interface{}, _ time.Duration) error {
 			return errors.New("error")
