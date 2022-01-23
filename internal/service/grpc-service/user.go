@@ -45,8 +45,7 @@ func (svc UserService) Login(ctx context.Context, r *proto.LoginRequest) (*proto
 	}
 
 	// Invalid cases
-	hashedPass := hashing.HashPassword(r.Password)
-	if user.Password != hashedPass {
+	if hashing.CheckPasswordHashBcrypt(user.Password, r.Password) {
 		return nil, errors.New("svc.UserLogin: pwd incorrect")
 	} else if user.Status != uint8(constant.EnabledStatus) {
 		return nil, errors.New("svc.UserLogin: status disabled")
@@ -71,7 +70,10 @@ func (svc UserService) Register(ctx context.Context, r *proto.RegisterRequest) (
 	}
 
 	// Add Salt to pass
-	hashedPass := hashing.HashPassword(r.Password)
+	hashedPass, err := hashing.HashPasswordBcrypt(r.Password)
+	if err != nil {
+		return nil, errors.New("svc.UserRegister: encrypt password failed")
+	}
 
 	// Create User to DB
 	_, err = svc.dao.CreateUser(r.Username, hashedPass, r.Nickname, r.ProfilePic, uint8(constant.EnabledStatus))
