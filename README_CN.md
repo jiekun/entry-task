@@ -1,5 +1,5 @@
-[![pipeline](https://github.com/2014BDuck/entry-task/actions/workflows/github-actions.yml/badge.svg)](https://github.com/2014BDuck/entry-task/actions)
-[![codecov](https://codecov.io/gh/2014BDuck/entry-task/branch/master/graph/badge.svg?token=V0Y5Q4D3I0)](https://codecov.io/gh/2014BDuck/entry-task)
+[![pipeline](https://github.com/jiekun/entry-task/actions/workflows/github-actions.yml/badge.svg)](https://github.com/jiekun/entry-task/actions)
+[![codecov](https://codecov.io/gh/jiekun/entry-task/branch/master/graph/badge.svg?token=V0Y5Q4D3I0)](https://codecov.io/gh/jiekun/entry-task)
 # Entry Task
 ## 简介
 `entry-task` 是一个基于 **Gin** 框架的 web service，提供基础的用户管理功能。
