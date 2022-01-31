@@ -4,7 +4,7 @@
 package resp
 
 import (
-	errcode "github.com/2014bduck/entry-task/internal/error"
+	errcode "github.com/jiekun/entry-task/internal/error"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

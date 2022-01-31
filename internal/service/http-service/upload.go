@@ -5,8 +5,8 @@ package http_service
 
 import (
 	"errors"
-	"github.com/2014bduck/entry-task/pkg/upload"
-	"github.com/2014bduck/entry-task/proto"
+	"github.com/jiekun/entry-task/pkg/upload"
+	"github.com/jiekun/entry-task/proto"
 	"mime/multipart"
 )
 

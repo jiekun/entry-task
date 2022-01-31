@@ -4,8 +4,8 @@
 package global
 
 import (
-	"github.com/2014bduck/entry-task/pkg/logger"
-	"github.com/2014bduck/entry-task/pkg/setting"
+	"github.com/jiekun/entry-task/pkg/logger"
+	"github.com/jiekun/entry-task/pkg/setting"
 )
 
 var (

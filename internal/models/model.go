@@ -5,8 +5,8 @@ package models
 
 import (
 	"fmt"
-	"github.com/2014bduck/entry-task/global"
-	"github.com/2014bduck/entry-task/pkg/setting"
+	"github.com/jiekun/entry-task/global"
+	"github.com/jiekun/entry-task/pkg/setting"
 	"github.com/go-redis/redis/v8"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

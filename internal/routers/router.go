@@ -4,8 +4,8 @@
 package routers
 
 import (
-	"github.com/2014bduck/entry-task/internal/routers/api"
-	"github.com/2014bduck/entry-task/pkg/middleware"
+	"github.com/jiekun/entry-task/internal/routers/api"
+	"github.com/jiekun/entry-task/pkg/middleware"
 	"github.com/gin-gonic/gin"
 )
 

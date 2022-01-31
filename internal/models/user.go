@@ -4,7 +4,7 @@
 package models
 
 import (
-	"github.com/2014bduck/entry-task/internal/constant"
+	"github.com/jiekun/entry-task/internal/constant"
 	"gorm.io/gorm"
 )
 

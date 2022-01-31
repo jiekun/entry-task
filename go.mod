@@ -1,4 +1,4 @@
-module github.com/2014bduck/entry-task
+module github.com/jiekun/entry-task
 
 go 1.15
 

@@ -4,7 +4,7 @@
 package dao
 
 import (
-	"github.com/2014bduck/entry-task/internal/models"
+	"github.com/jiekun/entry-task/internal/models"
 	"time"
 )
 
