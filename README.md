@@ -1,10 +1,10 @@
-[![pipeline](https://github.com/2014BDuck/entry-task/actions/workflows/github-actions.yml/badge.svg)](https://github.com/2014BDuck/entry-task/actions)
-[![codecov](https://codecov.io/gh/2014BDuck/entry-task/branch/master/graph/badge.svg?token=V0Y5Q4D3I0)](https://codecov.io/gh/2014BDuck/entry-task)
+[![pipeline](https://github.com/jiekun/entry-task/actions/workflows/github-actions.yml/badge.svg)](https://github.com/jiekun/entry-task/actions)
+[![codecov](https://codecov.io/gh/jiekun/entry-task/branch/master/graph/badge.svg?token=V0Y5Q4D3I0)](https://codecov.io/gh/jiekun/entry-task)
 # Entry Task
 ## Introduction
 `entry-task` is a web service based on **Gin** framework. It provides basic user management feature.
 
-README is also available in Chinese: [中文文档](https://github.com/2014BDuck/entry-task/blob/master/README_CN.md).
+README is also available in Chinese: [中文文档](https://github.com/jiekun/entry-task/blob/master/README_CN.md).
 
 **IMPORTANT**: This repo is set to public for study and discussion purposes. You may fork this project for reference usage. Please do **NOT** copy and paste directly when working on your own entry task.
 

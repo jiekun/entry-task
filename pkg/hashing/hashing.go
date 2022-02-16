@@ -6,7 +6,7 @@ package hashing
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/2014bduck/entry-task/global"
+	"github.com/jiekun/entry-task/global"
 	"golang.org/x/crypto/bcrypt"
 )
 

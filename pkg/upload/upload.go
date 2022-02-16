@@ -5,8 +5,8 @@ package upload
 
 import (
 	"bytes"
-	"github.com/2014bduck/entry-task/global"
-	"github.com/2014bduck/entry-task/pkg/hashing"
+	"github.com/jiekun/entry-task/global"
+	"github.com/jiekun/entry-task/pkg/hashing"
 	"io"
 	"io/ioutil"
 	"mime/multipart"

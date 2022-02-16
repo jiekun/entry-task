@@ -5,8 +5,8 @@ package http_service
 
 import (
 	"context"
-	"github.com/2014bduck/entry-task/global"
-	"github.com/2014bduck/entry-task/internal/dao"
+	"github.com/jiekun/entry-task/global"
+	"github.com/jiekun/entry-task/internal/dao"
 	"google.golang.org/grpc"
 )
 

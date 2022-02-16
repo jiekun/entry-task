@@ -4,9 +4,9 @@
 package middleware
 
 import (
-	errcode "github.com/2014bduck/entry-task/internal/error"
-	"github.com/2014bduck/entry-task/internal/service/http-service"
-	"github.com/2014bduck/entry-task/pkg/resp"
+	errcode "github.com/jiekun/entry-task/internal/error"
+	"github.com/jiekun/entry-task/internal/service/http-service"
+	"github.com/jiekun/entry-task/pkg/resp"
 	"github.com/gin-gonic/gin"
 )
 

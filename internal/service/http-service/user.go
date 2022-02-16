@@ -5,8 +5,8 @@ package http_service
 
 import (
 	"errors"
-	"github.com/2014bduck/entry-task/internal/constant"
-	"github.com/2014bduck/entry-task/proto"
+	"github.com/jiekun/entry-task/internal/constant"
+	"github.com/jiekun/entry-task/proto"
 )
 
 type LoginRequest struct {

@@ -6,10 +6,10 @@ package grpc_service
 import (
 	"context"
 	"errors"
-	"github.com/2014bduck/entry-task/global"
-	"github.com/2014bduck/entry-task/internal/dao"
-	"github.com/2014bduck/entry-task/pkg/upload"
-	"github.com/2014bduck/entry-task/proto"
+	"github.com/jiekun/entry-task/global"
+	"github.com/jiekun/entry-task/internal/dao"
+	"github.com/jiekun/entry-task/pkg/upload"
+	"github.com/jiekun/entry-task/proto"
 	"os"
 )
 
