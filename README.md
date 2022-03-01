@@ -52,7 +52,7 @@ go tool cover -func profile.cov
 ├── LICENSE
 ├── README.md
 ├── cmd                                     # 
-│    ├── grpc-server                        # 
+│    ├── rpc-server                         # 
 │    │    └── main.go                       # gRPC Server entry point
 │    └── http-server                        # 
 │         └── main.go                       # HTTP Server entry point
